@@ -63,7 +63,8 @@ def home():
 
 @app.route("/login")
 def login():
-    return render_template("login.html")
+    from config import GOOGLE_CLIENT_ID
+    return render_template("login.html", google_client_id=GOOGLE_CLIENT_ID)
 
 @app.route("/dashboard")
 def dashboard():
