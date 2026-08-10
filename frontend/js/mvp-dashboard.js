@@ -282,7 +282,7 @@ const MVPDashboard = {
       
       try {
         const result = await apiFetch('/emails/scan');
-        showToast(`Sync complete. ${result.jobs_extracted || 0} job(s) found.`, 'success');
+        showToast(`Sync complete. ${result.total_extracted || 0} job(s) found.`, 'success');
         await this.loadJobs();
       } catch (e) {
         showToast((e.message || '').includes('not connected')

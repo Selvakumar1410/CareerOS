@@ -269,7 +269,7 @@ const MVPApps = {
 
     try {
       const result = await apiFetch('/emails/scan');
-      showToast(`Sync complete. ${result.jobs_extracted || 0} new job(s) found.`, 'success');
+      showToast(`Sync complete. ${result.total_extracted || 0} new job(s) found.`, 'success');
       await this.loadJobs();
     } catch (e) {
       if ((e.message || '').includes('not connected')) {
