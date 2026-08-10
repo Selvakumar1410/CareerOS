@@ -1122,8 +1122,8 @@ tr:hover td {
   background: var(--text-muted);
 }
 
-/* ==================== LOADING OVERLAY ==================== */
-.loading-overlay {
+/* ==================== GLOBAL SYNC OVERLAY ==================== */
+.global-sync-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -1141,12 +1141,12 @@ tr:hover td {
   transition: opacity 0.3s ease;
 }
 
-.loading-overlay.active {
+.global-sync-overlay.active {
   opacity: 1;
   pointer-events: all;
 }
 
-.loading-overlay p {
+.global-sync-overlay p {
   margin-top: 20px;
   font-size: 16px;
   font-weight: 500;
