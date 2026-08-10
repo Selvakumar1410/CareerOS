@@ -552,23 +552,36 @@
 
     @media (max-width: 600px) {
       .nav-links { display: none; }
-      .nav-inner > div:last-child .btn-outline { display: none; }
+      
+      .nav-inner > div:last-child .btn-outline { 
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+      .nav-inner > div:last-child .btn-primary { 
+        padding: 8px 12px !important;
+        font-size: 0.85rem;
+        margin-left: 4px !important;
+      }
       
       .hero { padding-top: 60px; }
-      .hero h1 { font-size: 3rem; }
+      .hero h1 { font-size: 2.8rem; }
+      .hero p { font-size: 1.1rem; }
       .hero-ctas { flex-direction: column; align-items: stretch; }
       .hero-ctas a { justify-content: center; text-align: center; }
       
       .demo-container { transform: scale(0.8); margin-top: 40px; transform-origin: top center; }
       
-      .stats-grid { grid-template-columns: 1fr; gap: 40px; }
-      .stat-number { font-size: 3rem; }
+      .stats-grid { grid-template-columns: 1fr; gap: 32px; }
+      .stat-number { font-size: 2.8rem; }
+      
+      .section-header h2 { font-size: 2rem; }
+      .section-header p { font-size: 1rem; padding: 0 16px; }
       
       .footer-inner { grid-template-columns: 1fr; gap: 32px; }
       .marquee span { font-size: 1rem; }
       
-      section { padding: 80px 0; }
-      section.container { padding-top: 80px; padding-bottom: 80px; }
+      section { padding: 60px 0; }
+      section.container { padding-top: 60px; padding-bottom: 60px; }
     }
   </style>
 </head>
