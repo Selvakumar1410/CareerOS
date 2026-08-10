@@ -30,7 +30,7 @@ if not os.environ.get("DATABASE_URL") and not os.environ.get("MYSQL_URL"):
 
 # ==================== APP ====================
 FLASK_SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", JWT_SECRET)
-API_BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:5000")
+API_BASE_URL = os.environ.get("RENDER_EXTERNAL_URL", os.environ.get("API_BASE_URL", "http://localhost:5000"))
 
 # ==================== GMAIL SCAN ====================
 GMAIL_SCAN_INTERVAL_MINUTES = int(os.environ.get("GMAIL_SCAN_INTERVAL_MINUTES", "5"))

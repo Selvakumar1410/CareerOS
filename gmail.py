@@ -27,24 +27,22 @@ os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
 
 # ==================== OAUTH2 FLOW HELPERS ====================
 
-def get_flow(redirect_uri=None):
+def get_flow():
     """Create Google OAuth2 flow for Gmail access."""
-    if not redirect_uri:
-        redirect_uri = f"{API_BASE_URL}/auth/gmail/callback"
     client_config = {
         "web": {
             "client_id": GOOGLE_CLIENT_ID,
             "client_secret": GOOGLE_CLIENT_SECRET,
             "auth_uri": "https://accounts.google.com/o/oauth2/auth",
             "token_uri": "https://oauth2.googleapis.com/token",
-            "redirect_uris": [redirect_uri],
+            "redirect_uris": [f"{API_BASE_URL}/auth/gmail/callback"],
         }
     }
 
     flow = Flow.from_client_config(
         client_config,
         scopes=GMAIL_SCOPES,
-        redirect_uri=redirect_uri,
+        redirect_uri=f"{API_BASE_URL}/auth/gmail/callback",
     )
     return flow
 
@@ -106,12 +104,7 @@ def gmail_connect():
     # Store JWT in session so we can retrieve user after callback
     session["jwt_token"] = jwt_token
 
-    from flask import url_for
-    redirect_uri = url_for("gmail.gmail_callback", _external=True)
-    if "onrender.com" in redirect_uri and redirect_uri.startswith("http://"):
-        redirect_uri = redirect_uri.replace("http://", "https://", 1)
-
-    flow = get_flow(redirect_uri=redirect_uri)
+    flow = get_flow()
     auth_url, state = flow.authorization_url(
         access_type="offline",
         include_granted_scopes="true",
@@ -119,7 +112,6 @@ def gmail_connect():
     )
 
     session["oauth_state"] = state
-    session["oauth_redirect_uri"] = redirect_uri
     session["code_verifier"] = flow.code_verifier
     return redirect(auth_url)
 
@@ -127,10 +119,8 @@ def gmail_connect():
 @gmail_bp.route("/auth/gmail/callback", methods=["GET"])
 def gmail_callback():
     """Handle OAuth2 callback from Google."""
-    redirect_uri = session.get("oauth_redirect_uri")
-    flow = get_flow(redirect_uri=redirect_uri)
+    flow = get_flow()
     flow.code_verifier = session.get("code_verifier")
-
     # Fix auth_response URL scheme to match redirect_uri for Render
     auth_response_url = request.url
     if "onrender.com" in auth_response_url and auth_response_url.startswith("http://"):
