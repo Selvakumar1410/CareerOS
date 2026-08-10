@@ -275,7 +275,7 @@ def scan_emails():
         results = service.users().messages().list(
             userId="me",
             q=query,
-            maxResults=15,
+            maxResults=5,
         ).execute()
 
         messages = results.get("messages", [])
