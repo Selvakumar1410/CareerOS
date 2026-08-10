@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Pipeline | CareerOS{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <div>
+    <h2 class="text-2xl font-bold">Pipeline Workspace</h2>
+    <p class="text-secondary">Drag and drop applications to update their status.</p>
+  </div>
+  <div class="view-toggle">
+    <button class="btn-ai"><i data-lucide="plus"></i> Add Job</button>
+  </div>
+</div>
+
+<!-- Kanban Board -->
+<div class="kanban-board" id="kanbanBoard">
+  <!-- Applied -->
+  <div class="kanban-column">
+    <div class="column-header">APPLIED <span class="column-count" id="countApplied">0</span></div>
+    <div id="colApplied" class="kanban-dropzone"></div>
+  </div>
+  <!-- Assessment -->
+  <div class="kanban-column">
+    <div class="column-header">ASSESSMENT <span class="column-count" id="countAssessment">0</span></div>
+    <div id="colAssessment" class="kanban-dropzone"></div>
+  </div>
+  <!-- Interview -->
+  <div class="kanban-column">
+    <div class="column-header">INTERVIEW <span class="column-count" id="countInterview">0</span></div>
+    <div id="colInterview" class="kanban-dropzone"></div>
+  </div>
+  <!-- Offer -->
+  <div class="kanban-column">
+    <div class="column-header">OFFER <span class="column-count" id="countOffer">0</span></div>
+    <div id="colOffer" class="kanban-dropzone"></div>
+  </div>
+  <!-- Rejected -->
+  <div class="kanban-column">
+    <div class="column-header">REJECTED <span class="column-count" id="countRejected">0</span></div>
+    <div id="colRejected" class="kanban-dropzone"></div>
+  </div>
+</div>
+
+<!-- Toasts container -->
+<div id="toastContainer" class="toast-container"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/js/components/cards.js"></script>
+<script src="/js/components/pipeline.js"></script>
+<script>
+  // Simplified pipeline initialization for the dedicated page
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const response = await apiFetch("/api/jobs");
+      const jobs = response.jobs || [];
+      if (typeof Pipeline !== 'undefined') {
+        Pipeline.init(jobs);
+      }
+    } catch (error) {
+      console.error("Failed to load pipeline jobs:", error);
+    }
+  });
+</script>
+{% endblock %}

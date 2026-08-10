@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Integrations | CareerOS{% endblock %}
+
+{% block content %}
+<div class="section-header" style="margin-bottom: 24px;">
+  <div>
+    <h2 class="text-2xl font-bold">Connectivity Hub</h2>
+    <p class="text-secondary">Manage your connections to Gmail, LinkedIn, and ATS platforms.</p>
+  </div>
+</div>
+
+<!-- EMAIL IMPORT CARD -->
+<section class="email-scanner timeline-card">
+  <div class="scanner-info">
+    <h4><i data-lucide="mail"></i> Gmail Integration</h4>
+    <p>Auto-extracting job applications, rejections, and interview schedules.</p>
+    <div class="scanner-status" id="gmailStatus">
+      <div class="dot-pulse" style="background-color: var(--text-secondary)"></div> <span style="color: var(--text-secondary)">Checking connection...</span>
+    </div>
+  </div>
+  <div>
+    <button class="btn-outline" style="margin-right:12px;">View Logs</button>
+    <button class="btn-ai" onclick="runGmailScan()"><i data-lucide="refresh-cw"></i> Sync Now</button>
+  </div>
+</section>
+
+<!-- Toasts container -->
+<div id="toastContainer" class="toast-container"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Simple mock for runGmailScan until the full integrations logic is moved
+  function runGmailScan() {
+    alert("Running Gmail sync...");
+  }
+</script>
+{% endblock %}

@@ -1,59 +1,67 @@
-from flask import Blueprint, request, jsonify
-import jwt
-from db import cursor, db
+from flask import Blueprint, request, jsonify, g
+from middleware import login_required
+from db import get_db_connection, get_db_cursor
 
 profile_bp = Blueprint("profile", __name__)
-
-JWT_SECRET = "jobtracker_secret_key"
-
-
-# 🔐 JWT verify helper
-def verify_token(request):
-    auth_header = request.headers.get("Authorization")
-    if not auth_header:
-        return None
-
-    try:
-        token = auth_header.split(" ")[1]
-        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-        return payload
-    except:
-        return None
 
 
 # 👤 VIEW PROFILE
 @profile_bp.route("/profile", methods=["GET"])
+@login_required
 def view_profile():
-    user = verify_token(request)
-    if not user:
-        return jsonify({"error": "Unauthorized"}), 401
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
 
-    cursor.execute(
-        "SELECT id, name, email, auth_provider, created_at FROM users WHERE id=%s",
-        (user["user_id"],),
-    )
-    profile = cursor.fetchone()
+    try:
+        cursor.execute(
+            "SELECT id, name, email, auth_provider, created_at FROM users WHERE id=%s",
+            (g.user["user_id"],),
+        )
+        profile = cursor.fetchone()
 
-    return jsonify(profile)
+        if profile and hasattr(profile.get("created_at"), "isoformat"):
+            profile["created_at"] = profile["created_at"].isoformat()
+
+        # Check if Gmail is connected
+        cursor.execute(
+            "SELECT id FROM gmail_tokens WHERE user_id=%s",
+            (g.user["user_id"],),
+        )
+        gmail_connected = cursor.fetchone() is not None
+        if profile:
+            profile["gmail_connected"] = gmail_connected
+
+        return jsonify(profile)
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # ✏️ UPDATE PROFILE (NAME ONLY)
 @profile_bp.route("/profile", methods=["PUT"])
+@login_required
 def update_profile():
-    user = verify_token(request)
-    if not user:
-        return jsonify({"error": "Unauthorized"}), 401
-
     data = request.get_json()
-    name = data.get("name")
+    name = (data.get("name") or "").strip()
 
     if not name:
         return jsonify({"error": "Name is required"}), 400
 
-    cursor.execute(
-        "UPDATE users SET name=%s WHERE id=%s",
-        (name, user["user_id"]),
-    )
-    db.commit()
+    if len(name) > 100:
+        return jsonify({"error": "Name must be under 100 characters"}), 400
 
-    return jsonify({"message": "Profile updated successfully"})
+    conn = get_db_connection()
+    cursor = get_db_cursor(conn)
+
+    try:
+        cursor.execute(
+            "UPDATE users SET name=%s WHERE id=%s",
+            (name, g.user["user_id"]),
+        )
+        conn.commit()
+        return jsonify({"message": "Profile updated successfully"})
+
+    finally:
+        cursor.close()
+        conn.close()

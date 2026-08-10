@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Calendar | CareerOS{% endblock %}
+
+{% block head_css %}
+<style>
+.cal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+.cal-title { font-size:1.5rem; font-weight:800; letter-spacing:-0.3px; }
+.cal-subtitle { font-size:0.875rem; color:var(--text-secondary); margin-top:4px; }
+.cal-nav { display:flex; align-items:center; gap:12px; }
+.cal-month-label { font-size:1.1rem; font-weight:700; min-width:160px; text-align:center; }
+.cal-btn { width:36px; height:36px; border:1px solid var(--glass-border); border-radius:9px; background:var(--panel-bg); cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); transition:all 0.15s; }
+.cal-btn:hover { border-color:var(--accent-blue); color:var(--accent-blue); background:rgba(59,130,246,0.05); }
+.btn-today { padding:8px 16px; border:1px solid var(--glass-border); border-radius:99px; background:var(--panel-bg); font-size:0.82rem; font-weight:600; cursor:pointer; color:var(--text-secondary); transition:all 0.15s; }
+.btn-today:hover { border-color:var(--accent-blue); color:var(--accent-blue); }
+
+/* Calendar grid */
+.cal-grid-wrap { background:var(--panel-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); box-shadow:var(--shadow-md); overflow:hidden; }
+.cal-day-names { display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--glass-border); background:var(--search-bg); }
+.cal-day-name { padding:10px; text-align:center; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-secondary); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); }
+.cal-cell { border-right:1px solid var(--glass-border); border-bottom:1px solid var(--glass-border); min-height:100px; padding:8px; position:relative; }
+.cal-cell:nth-child(7n) { border-right:none; }
+.cal-cell.other-month .cal-day-num { color:var(--text-secondary); opacity:0.35; }
+.cal-cell.today { background:rgba(59,130,246,0.04); }
+.cal-cell.today .cal-day-num { background:var(--accent-blue); color:#fff; border-radius:50%; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.cal-day-num { font-size:0.82rem; font-weight:600; color:var(--text-secondary); margin-bottom:4px; line-height:1; }
+.today .cal-day-num { color:var(--text-primary); }
+
+/* Events */
+.cal-event { padding:3px 7px; border-radius:5px; font-size:0.72rem; font-weight:600; margin-top:3px; cursor:pointer; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:opacity 0.15s; }
+.cal-event:hover { opacity:0.75; }
+.ev-interview  { background:rgba(245,158,11,0.15); color:#d97706; }
+.ev-assessment { background:rgba(168,85,247,0.15); color:#9333ea; }
+.ev-applied    { background:rgba(59,130,246,0.15); color:#2563eb; }
+.ev-deadline   { background:rgba(239,68,68,0.1);   color:#dc2626; }
+
+/* Detail panel */
+.cal-detail { margin-top:20px; background:var(--panel-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:20px; display:none; }
+.cal-detail h3 { font-size:1rem; font-weight:700; margin-bottom:16px; }
+.cal-detail-item { display:flex; gap:12px; align-items:flex-start; padding:10px 0; border-bottom:1px solid var(--glass-border); }
+.cal-detail-item:last-child { border-bottom:none; }
+.cal-detail-icon { width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.cal-detail-text strong { display:block; font-size:0.9rem; font-weight:700; }
+.cal-detail-text span { font-size:0.8rem; color:var(--text-secondary); }
+
+/* Legend */
+.cal-legend { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:0.8rem; color:var(--text-secondary); }
+.legend-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+@media (max-width: 768px) {
+  .cal-cell { min-height:60px; padding:4px; }
+  .cal-event { display:none; }
+  .cal-cell.has-events::after { content:'●'; font-size:0.5rem; position:absolute; bottom:4px; right:4px; color:var(--accent-blue); }
+  .ev-interview ~ .cal-cell.has-events::after { color:#F59E0B; }
+  .ev-assessment ~ .cal-cell.has-events::after { color:#9333ea; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cal-header">
+  <div>
+    <h2 class="cal-title">Calendar</h2>
+    <p class="cal-subtitle">Interviews, assessments, and important dates.</p>
+  </div>
+  <div class="cal-nav">
+    <button class="btn-today" onclick="MVPCal.goToday()">Today</button>
+    <button class="cal-btn" onclick="MVPCal.prevMonth()"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i></button>
+    <span class="cal-month-label" id="calMonthLabel">Loading...</span>
+    <button class="cal-btn" onclick="MVPCal.nextMonth()"><i data-lucide="chevron-right" style="width:16px;height:16px;"></i></button>
+  </div>
+</div>
+
+<div class="cal-legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#2563eb;"></div> Applied</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#d97706;"></div> Interview</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#9333ea;"></div> Assessment</div>
+</div>
+
+<div class="cal-grid-wrap">
+  <div class="cal-day-names">
+    <div class="cal-day-name">Sun</div>
+    <div class="cal-day-name">Mon</div>
+    <div class="cal-day-name">Tue</div>
+    <div class="cal-day-name">Wed</div>
+    <div class="cal-day-name">Thu</div>
+    <div class="cal-day-name">Fri</div>
+    <div class="cal-day-name">Sat</div>
+  </div>
+  <div class="cal-grid" id="calGrid">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- Event detail panel -->
+<div class="cal-detail" id="calDetail">
+  <h3 id="calDetailTitle">Events</h3>
+  <div id="calDetailList"></div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/js/mvp-calendar.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    MVPCal.init();
+  });
+</script>
+{% endblock %}

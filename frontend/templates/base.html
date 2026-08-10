@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}CareerOS | AI Career Operating System{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏢</text></svg>">
+  
+  <!-- Premium Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Global CSS -->
+  <link rel="stylesheet" href="/css/dashboard.css">
+  {% block head_css %}{% endblock %}
+
+  <!-- Config & CDNs -->
+  <script src="/js/config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  {% block head_js %}{% endblock %}
+</head>
+
+<body>
+  <!-- ==================== SIDEBAR ==================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <i data-lucide="layers"></i>
+      <span>CareerOS</span>
+    </div>
+    
+    <div class="nav-section">
+      <a href="/dashboard" class="nav-item {% if request.path == '/dashboard' %}active{% endif %}">
+        <i data-lucide="layout-dashboard"></i> Dashboard
+      </a>
+      <a href="/applications" class="nav-item {% if request.path == '/applications' %}active{% endif %}">
+        <i data-lucide="briefcase"></i> Applications
+      </a>
+      <a href="/calendar" class="nav-item {% if request.path == '/calendar' %}active{% endif %}">
+        <i data-lucide="calendar"></i> Calendar
+      </a>
+    </div>
+
+    <div class="nav-section sidebar-bottom">
+      <a href="/settings" class="nav-item {% if request.path == '/settings' %}active{% endif %}">
+        <i data-lucide="settings"></i> Settings
+      </a>
+      <a href="#" class="nav-item" onclick="logout()" style="color:var(--status-rejected);">
+        <i data-lucide="log-out"></i> Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- ==================== MAIN CONTENT ==================== -->
+  <div class="main-wrapper" id="mainWrapper">
+    
+    <!-- TOP NAVIGATION -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="topbar-page-title" id="topbarPageTitle">Dashboard</span>
+      </div>
+      
+      <div class="topbar-actions">
+        <button class="action-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Theme">
+          <i data-lucide="moon"></i>
+        </button>
+        <button class="action-btn notif-btn" onclick="window.location.href='/notifications'" title="Notifications" style="position:relative;">
+          <i data-lucide="bell"></i>
+          <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+        </button>
+        <div class="profile-circle" id="profileCircle" onclick="window.location.href='/settings'" title="Settings">U</div>
+      </div>
+    </header>
+
+    <div class="content-pad page-transition-enter">
+      {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Modals (outside of transformed containers) -->
+    {% block modals %}{% endblock %}
+  </div>
+
+  <!-- Command Palette Modal Placeholder -->
+  <div id="commandPalette" class="modal-backdrop hidden" onclick="closeCommandPalette(event)" style="z-index: 1000; justify-content: center; align-items: flex-start; padding-top: 10vh;">
+    <div class="command-palette-content" style="background: var(--panel-bg); border: 1px solid var(--glass-border); width: 600px; border-radius: var(--radius-lg); padding: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+      <div class="cp-search" style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--glass-border); padding-bottom: 16px; margin-bottom: 16px;">
+        <i data-lucide="search"></i>
+        <input type="text" id="cpInput" placeholder="What do you need to do?" style="background: transparent; border: none; outline: none; width: 100%; color: var(--text-primary); font-size: 1.1rem;">
+      </div>
+      <div class="cp-results">
+        <!-- populated by js -->
+        <div style="color: var(--text-secondary); font-size: 0.9rem;">Start typing to search commands...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page specific scripts -->
+  {% block scripts %}{% endblock %}
+
+  <!-- Core Initialization -->
+  <script>
+    if (typeof lucide !== 'undefined') {
+      lucide.createIcons();
+    }
+    
+    // Command Palette Logic
+    function openCommandPalette() {
+      document.getElementById('commandPalette').classList.remove('hidden');
+      document.getElementById('commandPalette').style.display = 'flex';
+      document.getElementById('cpInput').focus();
+    }
+    
+    function closeCommandPalette(e) {
+      if (!e || e.target.id === 'commandPalette') {
+        document.getElementById('commandPalette').classList.add('hidden');
+        document.getElementById('commandPalette').style.display = 'none';
+      }
+    }
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        openCommandPalette();
+      }
+      if (e.key === 'Escape') {
+        closeCommandPalette();
+      }
+    });
+    
+    // Page transition animation using GSAP
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo('.page-transition-enter', 
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', clearProps: 'transform' }
+      );
+    }
+  </script>
+</body>
+</html>

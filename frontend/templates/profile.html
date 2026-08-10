@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% block title %}Settings | CareerOS{% endblock %}
+
+{% block head_css %}
+<style>
+.settings-page-title { font-size:1.5rem; font-weight:800; letter-spacing:-0.3px; margin-bottom:4px; }
+.settings-page-subtitle { font-size:0.875rem; color:var(--text-secondary); margin-bottom:28px; }
+
+/* Profile hero */
+.profile-hero {
+  display:flex; gap:24px; align-items:center;
+  background:var(--panel-bg); border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg); padding:32px;
+  box-shadow:var(--shadow-md); margin-bottom:24px;
+}
+.profile-avatar {
+  width:72px; height:72px; border-radius:50%;
+  background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+  color:#fff; font-size:1.75rem; font-weight:800;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.profile-name { font-size:1.25rem; font-weight:800; margin-bottom:4px; }
+.profile-email { color:var(--text-secondary); font-size:0.9rem; margin-bottom:8px; }
+.profile-badge { display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:700; color:#10B981; background:rgba(16,185,129,0.1); padding:4px 12px; border-radius:99px; }
+
+/* Settings grid */
+.settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media (max-width:768px) { .settings-grid { grid-template-columns:1fr; } }
+
+.settings-card {
+  background:var(--panel-bg); border:1px solid var(--glass-border);
+  border-radius:var(--radius-lg); padding:24px;
+  box-shadow:var(--shadow-sm);
+}
+.settings-card-title { font-size:1rem; font-weight:700; margin-bottom:20px; display:flex; align-items:center; gap:10px; color:var(--text-primary); }
+.settings-row { display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid var(--glass-border); }
+.settings-row:last-child { border-bottom:none; padding-bottom:0; }
+.settings-label { font-size:0.875rem; font-weight:600; }
+.settings-value { font-size:0.875rem; color:var(--text-secondary); }
+
+.badge-ok  { background:rgba(16,185,129,0.1); color:#10B981; padding:3px 10px; border-radius:99px; font-weight:700; font-size:0.78rem; }
+.badge-off { background:rgba(239,68,68,0.1);  color:#EF4444; padding:3px 10px; border-radius:99px; font-weight:700; font-size:0.78rem; }
+
+.btn-connect { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:var(--accent-blue); color:#fff; border:none; border-radius:99px; font-size:0.82rem; font-weight:700; cursor:pointer; transition:all 0.2s; }
+.btn-connect:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(59,130,246,0.3); }
+
+.btn-sync { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; background:var(--panel-bg); border:1px solid var(--glass-border); color:var(--text-primary); border-radius:99px; font-size:0.82rem; font-weight:600; cursor:pointer; transition:all 0.15s; }
+.btn-sync:hover { border-color:var(--accent-blue); color:var(--accent-blue); }
+
+.btn-danger { display:inline-flex; align-items:center; gap:6px; padding:8px 18px; background:rgba(239,68,68,0.08); color:#EF4444; border:1px solid rgba(239,68,68,0.2); border-radius:99px; font-size:0.875rem; font-weight:700; cursor:pointer; transition:all 0.2s; }
+.btn-danger:hover { background:#EF4444; color:#fff; }
+
+.sk { background:linear-gradient(90deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.09) 50%, rgba(0,0,0,0.04) 100%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:8px; }
+[data-theme="dark"] .sk { background:linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 100%); background-size:200% 100%; }
+@keyframes shimmer { to { background-position:-200% 0; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 class="settings-page-title">Settings</h2>
+<p class="settings-page-subtitle">Manage your account, Gmail connection, and preferences.</p>
+
+<!-- Profile Hero -->
+<div class="profile-hero">
+  <div class="profile-avatar" id="settingsAvatar">U</div>
+  <div>
+    <div class="profile-name" id="settingsName">Loading...</div>
+    <div class="profile-email" id="settingsEmail">user@email.com</div>
+    <span class="profile-badge">
+      <i data-lucide="check-circle" style="width:12px;height:12px;"></i> Google Account
+    </span>
+  </div>
+</div>
+
+<div class="settings-grid">
+  <!-- Gmail Integration -->
+  <div class="settings-card">
+    <div class="settings-card-title">
+      <i data-lucide="mail" style="width:18px;height:18px;color:var(--accent-blue);"></i>
+      Gmail Integration
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Status</span>
+      <span id="gmailStatus" class="badge-off">Not Connected</span>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Connected Email</span>
+      <span id="gmailEmail" class="settings-value">—</span>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Last Synced</span>
+      <span id="gmailLastSync" class="settings-value">Never</span>
+    </div>
+    <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:10px;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-connect" id="btnConnectGmail">
+          <i data-lucide="plug" style="width:14px;height:14px;"></i> Connect Gmail
+        </button>
+        <button class="btn-sync" id="btnSyncGmail">
+          <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Sync Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account -->
+  <div class="settings-card">
+    <div class="settings-card-title">
+      <i data-lucide="user" style="width:18px;height:18px;color:var(--text-secondary);"></i>
+      Account
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Authentication</span>
+      <span class="settings-value">Google Sign-In</span>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Account Status</span>
+      <span class="badge-ok">Active</span>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Member Since</span>
+      <span class="settings-value" id="memberSince">—</span>
+    </div>
+    <div class="settings-row" style="justify-content:flex-start;">
+      <button class="btn-danger" onclick="logout()">
+        <i data-lucide="log-out" style="width:15px;height:15px;"></i> Sign Out
+      </button>
+    </div>
+  </div>
+
+  <!-- App Stats -->
+  <div class="settings-card">
+    <div class="settings-card-title">
+      <i data-lucide="bar-chart-2" style="width:18px;height:18px;color:var(--text-secondary);"></i>
+      Your Data
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Total Applications</span>
+      <span id="setStatTotal" class="settings-value">—</span>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Interviews</span>
+      <span id="setStatInterview" class="settings-value">—</span>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Offers</span>
+      <span id="setStatOffer" class="settings-value">—</span>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Response Rate</span>
+      <span id="setStatRate" class="settings-value">—</span>
+    </div>
+  </div>
+
+  <!-- Preferences -->
+  <div class="settings-card">
+    <div class="settings-card-title">
+      <i data-lucide="settings" style="width:18px;height:18px;color:var(--text-secondary);"></i>
+      Preferences
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Theme</span>
+      <button class="btn-sync" onclick="toggleTheme()" style="padding:5px 12px;font-size:0.78rem;">
+        <i data-lucide="sun" style="width:13px;height:13px;"></i> Toggle Theme
+      </button>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Notifications</span>
+      <a href="/notifications" style="font-size:0.82rem;color:var(--accent-blue);text-decoration:none;font-weight:600;">View All →</a>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Applications</span>
+      <a href="/applications" style="font-size:0.82rem;color:var(--accent-blue);text-decoration:none;font-weight:600;">Manage →</a>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">Calendar</span>
+      <a href="/calendar" style="font-size:0.82rem;color:var(--accent-blue);text-decoration:none;font-weight:600;">View →</a>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/js/mvp-settings.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    MVPSettings.init();
+  });
+</script>
+{% endblock %}

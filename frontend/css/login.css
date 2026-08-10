@@ -1,0 +1,240 @@
+/* =====================================================================
+   CareerOS | Premium Authentication Styling
+   ===================================================================== */
+:root {
+  --bg-color: #FFFFFF;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --accent-blue: #4F6BFF;
+  --accent-purple: #8B5CF6;
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --soft-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05),
+                 0 10px 15px -5px rgba(0, 0, 0, 0.02);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  overflow: hidden; /* Prevent scroll on login */
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+}
+
+/* =====================================================================
+   BACKGROUND ECOSYSTEM (7 LAYERS)
+   ===================================================================== */
+.bg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* Layer 1: Pure White Bg (Done via body background) */
+
+/* Layer 2 & 3: Blobs */
+.blob-container { z-index: 1; }
+.blob-large, .blob-small {
+  position: absolute;
+  filter: blur(120px);
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.blob-large {
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, var(--accent-blue) 0%, rgba(79, 107, 255, 0) 70%);
+  top: 40%;
+  left: 60%;
+  animation: morphLarge 45s infinite ease-in-out alternate;
+}
+
+.blob-small {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, var(--accent-purple) 0%, rgba(139, 92, 246, 0) 70%);
+  top: 20%;
+  left: 30%;
+  animation: morphSmall 35s infinite ease-in-out alternate-reverse;
+}
+
+@keyframes morphLarge {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50% { transform: translate(-45%, -55%) scale(1.1) rotate(180deg); border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  100% { transform: translate(-55%, -45%) scale(0.95) rotate(360deg); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+}
+
+@keyframes morphSmall {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  100% { transform: translate(-30%, -60%) scale(1.2) rotate(-360deg); }
+}
+
+/* Layer 4: Radial Glow */
+.radial-glow {
+  z-index: 2;
+  background: radial-gradient(circle at 75% 50%, rgba(255,255,255,0.4) 0%, transparent 60%);
+}
+
+/* Layer 5: Gradient Mesh */
+.gradient-mesh {
+  z-index: 3;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(255, 255, 255, 0.4) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(79, 107, 255, 0.05) 0px, transparent 50%);
+}
+
+/* Layer 6: Particles (Generated via JS into this container) */
+.particle-container { z-index: 4; }
+.particle {
+  position: absolute;
+  width: 4px; height: 4px;
+  background: rgba(79, 107, 255, 0.5);
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(79, 107, 255, 0.8);
+  filter: blur(1px);
+}
+
+/* Layer 7: Noise Texture (Removed per user request to be clean like landing) */
+.noise-texture {
+  display: none;
+}
+
+/* =====================================================================
+   CUSTOM CURSOR (Matched from Landing Page)
+   ===================================================================== */
+.cursor-glow {
+  position: fixed; width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%; pointer-events: none;
+  transform: translate(-50%, -50%); z-index: 9999;
+  transition: width 0.3s, height 0.3s;
+}
+
+/* =====================================================================
+   SPLIT SCREEN LAYOUT
+   ===================================================================== */
+.layout-grid {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+/* LEFT PANEL (45%) */
+.panel-left {
+  width: 45%;
+  padding: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.brand-logo { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.5rem; margin-bottom: 60px; }
+.brand-logo svg { width: 32px; height: 32px; color: var(--text-primary); }
+
+.hero-heading { font-size: 3.5rem; font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 24px; }
+.hero-subtitle { font-size: 1.125rem; color: var(--text-secondary); margin-bottom: 48px; max-width: 400px; line-height: 1.6; }
+
+.feature-highlights { display: flex; flex-direction: column; gap: 16px; margin-bottom: 60px; font-weight: 600; color: var(--text-primary); }
+.feature-highlights div { display: flex; align-items: center; gap: 12px; }
+.feature-highlights svg { color: var(--accent-blue); width: 20px; height: 20px; }
+
+.mini-workflow { display: flex; align-items: center; gap: 12px; font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); background: rgba(255,255,255,0.5); padding: 16px 24px; border-radius: 99px; border: 1px solid var(--glass-border); width: fit-content; backdrop-filter: blur(10px); }
+.wf-arrow { color: rgba(17, 24, 39, 0.2); }
+
+/* RIGHT PANEL (55%) */
+.panel-right {
+  width: 55%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =====================================================================
+   GLASSMORPHISM CARD
+   ===================================================================== */
+.login-card {
+  width: 100%;
+  max-width: 460px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  padding: 48px;
+  box-shadow: var(--soft-shadow);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.login-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.08), 0 15px 25px -5px rgba(0, 0, 0, 0.04);
+}
+
+.card-header { text-align: center; margin-bottom: 40px; }
+.card-logo { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: var(--text-primary); border-radius: 12px; margin-bottom: 24px; color: #FFF; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+.card-logo svg { width: 24px; height: 24px; }
+
+.card-title { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+.card-subtitle { color: var(--text-secondary); font-size: 1rem; margin-bottom: 4px; }
+
+/* Rotating Text Container */
+.rotating-text-wrapper { height: 24px; overflow: hidden; position: relative; color: var(--accent-blue); font-weight: 500; font-size: 0.95rem; }
+.rotating-text { position: absolute; top: 0; left: 0; width: 100%; text-align: center; opacity: 0; transition: opacity 0.5s ease; }
+.rotating-text.active { opacity: 1; }
+
+.divider { height: 1px; background: rgba(0,0,0,0.08); margin: 32px 0; }
+
+/* =====================================================================
+   PREMIUM BUTTON
+   ===================================================================== */
+.google-btn-wrapper { position: relative; width: 100%; }
+.btn-google {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; padding: 14px 24px; background: #FFF;
+  border: 1px solid rgba(0,0,0,0.1); border-radius: 16px;
+  font-size: 1rem; font-weight: 600; color: var(--text-primary);
+  cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  outline: none;
+}
+.btn-google img { width: 20px; height: 20px; }
+.btn-google:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  border-color: rgba(79, 107, 255, 0.3);
+}
+.btn-google:active { transform: scale(0.98); }
+.btn-google.loading { pointer-events: none; opacity: 0.8; }
+
+.spinner {
+  width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.1);
+  border-top-color: var(--accent-blue); border-radius: 50%;
+  animation: spin 1s linear infinite; display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.trust-text { text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin-top: 24px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+/* =====================================================================
+   RESPONSIVE DESIGN
+   ===================================================================== */
+@media (max-width: 1200px) {
+  .hero-heading { font-size: 3rem; }
+  .panel-left { padding: 40px; }
+}
+
+@media (max-width: 992px) {
+  /* Tablet: Centered layout */
+  .panel-left { display: none; }
+  .panel-right { width: 100%; }
+  .blob-large { width: 600px; height: 600px; }
+}
+
+@media (max-width: 576px) {
+  /* Mobile: One blob, full width card */
+  .blob-small { display: none; }
+  .login-card { width: 92%; padding: 32px 24px; }
+  .card-title { font-size: 1.75rem; }
+}

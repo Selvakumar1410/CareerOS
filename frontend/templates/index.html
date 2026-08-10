@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerOS | Your AI-Powered Career Operating System</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg: #FAFAFC;
+      --text-main: #09090B;
+      --text-muted: #71717A;
+      --accent: #2563EB;
+      --accent-glow: rgba(37, 99, 235, 0.2);
+      --glass-bg: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(0, 0, 0, 0.05);
+      --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ===== CUSTOM CURSOR ===== */
+    .cursor-glow {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      transition: width 0.3s, height 0.3s;
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      padding: 16px 0;
+      transition: all 0.3s ease;
+    }
+
+    nav.scrolled {
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-weight: 800;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: inherit;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+
+    .btn-outline {
+      padding: 10px 20px;
+      border-radius: 99px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .btn-outline:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* ===== CTA BUTTONS ===== */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 32px;
+      background: var(--text-main);
+      color: #FFF;
+      border-radius: 99px;
+      text-decoration: none;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+
+    .btn-primary::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+
+    .btn-primary:hover::before {
+      transform: translateX(100%);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-secondary {
+      padding: 16px 32px;
+      background: #FFF;
+      color: var(--text-main);
+      border: 1px solid var(--glass-border);
+      border-radius: 99px;
+      text-decoration: none;
+      font-weight: 600;
+      box-shadow: var(--card-shadow);
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: #E4E4E7;
+      transform: translateY(-2px);
+    }
+
+    /* ===== HERO SECTION ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      padding-top: 100px;
+    }
+
+    .hero-bg-glow {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, rgba(250, 250, 252, 0) 70%);
+      border-radius: 50%;
+      z-index: -1;
+      filter: blur(40px);
+      animation: pulse 6s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      100% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.7;
+      }
+    }
+
+    .hero h1 {
+      font-size: 5rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      max-width: 900px;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin-bottom: 40px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    /* ===== PRODUCT DEMO ANIMATION ===== */
+    .demo-container {
+      margin-top: 80px;
+      width: 100%;
+      max-width: 900px;
+      background: #FFF;
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .demo-header {
+      background: #F4F4F5;
+      padding: 12px 20px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .demo-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #E4E4E7;
+    }
+
+    .demo-dot:nth-child(1) {
+      background: #FF5F56;
+    }
+
+    .demo-dot:nth-child(2) {
+      background: #FFBD2E;
+    }
+
+    .demo-dot:nth-child(3) {
+      background: #27C93F;
+    }
+
+    .demo-body {
+      padding: 40px;
+      height: 400px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .demo-step {
+      position: absolute;
+      opacity: 0;
+      transform: translateY(20px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      font-weight: 600;
+      font-size: 1.25rem;
+    }
+
+    .demo-step i {
+      width: 64px;
+      height: 64px;
+      color: var(--accent);
+    }
+
+    /* ===== TRUSTED BY MARQUEE ===== */
+    .marquee-wrapper {
+      width: 100%;
+      overflow: hidden;
+      padding: 60px 0;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .marquee-title {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 32px;
+    }
+
+    .marquee {
+      display: flex;
+      width: 200%;
+      animation: scroll 20s linear infinite;
+    }
+
+    .marquee span {
+      flex: 1;
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #A1A1AA;
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+
+    /* ===== SECTIONS GLOBAL ===== */
+    section {
+      padding: 120px 0;
+    }
+
+    section.container {
+      padding-top: 120px;
+      padding-bottom: 120px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .section-header h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+
+    .section-header p {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ===== FEATURE GRID (Vanilla Tilt) ===== */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .glass-card {
+      background: #FFF;
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: var(--card-shadow);
+      transition: box-shadow 0.3s;
+      transform-style: preserve-3d;
+    }
+
+    .glass-card:hover {
+      box-shadow: 0 20px 40px rgba(37, 99, 235, 0.08);
+      border-color: rgba(37, 99, 235, 0.2);
+    }
+
+    .glass-card i {
+      color: var(--accent);
+      margin-bottom: 24px;
+      width: 32px;
+      height: 32px;
+      transform: translateZ(20px);
+    }
+
+    .glass-card h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      transform: translateZ(20px);
+    }
+
+    .glass-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      transform: translateZ(20px);
+    }
+
+    /* ===== AI ASSISTANT CHAT ===== */
+    .chat-ui {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #FFF;
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .chat-bubble {
+      padding: 16px 20px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      max-width: 80%;
+      font-size: 0.95rem;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    .chat-user {
+      background: #F4F4F5;
+      color: var(--text-main);
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-ai {
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent);
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    /* ===== COUNTERS & DASHBOARD ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+
+    .stat-box {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -2px;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ===== ROADMAP ===== */
+    .roadmap-list {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .roadmap-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      background: #FFF;
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      font-weight: 600;
+    }
+
+    .roadmap-done {
+      color: #10B981;
+    }
+
+    .roadmap-soon {
+      color: var(--accent);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      border-top: 1px solid var(--glass-border);
+      padding: 80px 0;
+      margin-top: 80px;
+    }
+
+    footer.container {
+      padding-top: 80px;
+      padding-bottom: 80px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+    }
+
+    .footer-brand p {
+      color: var(--text-muted);
+      margin-top: 16px;
+      max-width: 250px;
+    }
+
+    .footer-col h4 {
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .footer-col a {
+      display: block;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 12px;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover {
+      color: var(--text-main);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Custom Cursor Glow -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <div class="container nav-inner">
+      <div class="logo">
+        <i data-lucide="zap" fill="currentColor"></i> CareerOS
+      </div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#ai-assistant">AI Assistant</a>
+        <a href="#pricing">Pricing</a>
+      </div>
+      <div>
+        <a href="/login" class="btn-outline">Sign in</a>
+        <a href="/login" class="btn-primary" style="padding: 10px 20px; margin-left: 8px;">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero" id="hero">
+    <div class="hero-bg-glow"></div>
+    <div class="container">
+      <h1 class="gsap-hero">Every application.<br>Every interview. One place.</h1>
+      <p class="gsap-hero">Automatically import job applications from Gmail, track interview progress, receive
+        AI-powered insights, and never miss another opportunity.</p>
+
+      <div class="hero-ctas gsap-hero">
+        <a href="/login" class="btn-primary">Start Tracking Free <i data-lucide="arrow-right"
+            style="margin-left: 8px; width: 18px;"></i></a>
+        <a href="#demo" class="btn-secondary"><i data-lucide="play-circle"
+            style="margin-right: 8px; width: 18px; vertical-align: middle;"></i> Watch Live Demo</a>
+      </div>
+
+      <!-- Hero Product Demo Animation -->
+      <div class="demo-container gsap-hero" id="demo" style="margin-top: 80px;">
+        <div class="demo-header">
+          <div class="demo-dot"></div>
+          <div class="demo-dot"></div>
+          <div class="demo-dot"></div>
+        </div>
+        <div class="demo-body">
+          <div class="demo-step step-1"><i data-lucide="mail"></i> <span>1. New Job Email Arrives</span></div>
+          <div class="demo-step step-2"><i data-lucide="bot"></i> <span>2. CareerAI Scans & Extracts</span></div>
+          <div class="demo-step step-3"><i data-lucide="building-2"></i> <span>3. Company & Role Identified</span></div>
+          <div class="demo-step step-4"><i data-lucide="check-circle-2"></i> <span>4. Status Updated to
+              'Interview'</span></div>
+          <div class="demo-step step-5"><i data-lucide="layout-dashboard"></i> <span>5. Dashboard Instantly
+              Updated</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRUSTED INTEGRATIONS -->
+  <div class="marquee-wrapper">
+    <div class="marquee-title">Seamlessly integrates with your workflow</div>
+    <div class="marquee">
+      <span>GMAIL</span><span>OUTLOOK</span><span>LINKEDIN</span><span>GREENHOUSE</span><span>WORKDAY</span><span>LEVER</span>
+      <span>GMAIL</span><span>OUTLOOK</span><span>LINKEDIN</span><span>GREENHOUSE</span><span>WORKDAY</span><span>LEVER</span>
+    </div>
+  </div>
+
+  <!-- FEATURES (Vanilla Tilt) -->
+  <section id="features" class="container">
+    <div class="section-header gsap-fade">
+      <h2>The ultimate career toolkit.</h2>
+      <p>CareerOS replaces messy Excel sheets and lost emails with an intelligent, automated tracking system.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="glass-card gsap-fade" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare
+        data-tilt-max-glare="0.2">
+        <i data-lucide="inbox"></i>
+        <h3>AI Email Parsing</h3>
+        <p>Connect your Gmail. CareerAI automatically extracts the company, role, status, and deadline from every
+          application email.</p>
+      </div>
+      <div class="glass-card gsap-fade" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare
+        data-tilt-max-glare="0.2">
+        <i data-lucide="kanban-square"></i>
+        <h3>Visual Pipeline</h3>
+        <p>A beautiful Kanban board that tracks your journey from Applied to Offer. Drag, drop, and manage with zero
+          friction.</p>
+      </div>
+      <div class="glass-card gsap-fade" data-tilt data-tilt-max="5" data-tilt-speed="400" data-tilt-glare
+        data-tilt-max-glare="0.2">
+        <i data-lucide="pie-chart"></i>
+        <h3>Application Analytics</h3>
+        <p>Understand your conversion rates. Track how many applications turn into interviews and pinpoint where you
+          need to improve.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI ASSISTANT -->
+  <section id="ai-assistant" class="container">
+    <div class="section-header gsap-fade">
+      <h2>Meet CareerAI. Your personal recruiter.</h2>
+      <p>Stop writing follow-up emails from scratch. CareerAI analyzes your applications and does the heavy lifting for
+        you.</p>
+    </div>
+
+    <div class="chat-ui">
+      <div class="chat-bubble chat-user gsap-chat">Show all pending assessments due this week.</div>
+      <div class="chat-bubble chat-ai gsap-chat">You have 3 assessments pending: Stripe, Vercel, and OpenAI. Should I
+        draft follow-up emails for any of them?</div>
+      <div class="chat-bubble chat-user gsap-chat">Generate a follow-up for Stripe.</div>
+      <div class="chat-bubble chat-ai gsap-chat">Drafted: "Hi Team, I recently completed the technical assessment for
+        the Frontend Engineer role..."</div>
+    </div>
+  </section>
+
+  <!-- STATS & TIMELINE -->
+  <section class="container">
+    <div class="section-header gsap-fade">
+      <h2>Trusted by top candidates.</h2>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-number"><span class="counter" data-target="15000">0</span>+</div>
+        <div class="stat-label">Emails Parsed</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number"><span class="counter" data-target="4200">0</span>+</div>
+        <div class="stat-label">Interviews</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number"><span class="counter" data-target="98">0</span>%</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number"><span class="counter" data-target="850">0</span>+</div>
+        <div class="stat-label">Offers Landed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROADMAP -->
+  <section id="roadmap" class="container">
+    <div class="section-header gsap-fade">
+      <h2>The Vision</h2>
+      <p>We're building the future of job tracking. Here is what we've shipped and what's coming next.</p>
+    </div>
+
+    <div class="roadmap-list">
+      <div class="roadmap-item gsap-fade">
+        <span><i data-lucide="check-circle" class="roadmap-done" style="vertical-align:middle;margin-right:8px;"></i>
+          Gmail Integration</span>
+        <span class="roadmap-done">Live</span>
+      </div>
+      <div class="roadmap-item gsap-fade">
+        <span><i data-lucide="check-circle" class="roadmap-done" style="vertical-align:middle;margin-right:8px;"></i> AI
+          Email Parsing</span>
+        <span class="roadmap-done">Live</span>
+      </div>
+      <div class="roadmap-item gsap-fade">
+        <span><i data-lucide="check-circle" class="roadmap-done" style="vertical-align:middle;margin-right:8px;"></i>
+          Analytics Dashboard</span>
+        <span class="roadmap-done">Live</span>
+      </div>
+      <div class="roadmap-item gsap-fade">
+        <span><i data-lucide="rocket" class="roadmap-soon" style="vertical-align:middle;margin-right:8px;"></i> Chrome
+          Extension</span>
+        <span class="roadmap-soon">Coming Soon</span>
+      </div>
+      <div class="roadmap-item gsap-fade">
+        <span><i data-lucide="rocket" class="roadmap-soon" style="vertical-align:middle;margin-right:8px;"></i> AI
+          Interview Coach</span>
+        <span class="roadmap-soon">Coming Soon</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo"><i data-lucide="zap" fill="currentColor"></i> CareerOS</div>
+        <p>The definitive AI-powered career operating system.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#">Features</a>
+        <a href="#">Integrations</a>
+        <a href="#">Pricing</a>
+        <a href="#">Changelog</a>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <a href="#">Documentation</a>
+        <a href="#">Blog</a>
+        <a href="#">Help Center</a>
+        <a href="#">API Reference</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <!-- GSAP & Lenis via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // 1. Lenis Smooth Scroll
+    const lenis = new Lenis({ duration: 1.2, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
+    function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+
+    // 2. Custom Cursor Glow
+    const cursor = document.getElementById('cursorGlow');
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+
+    // 3. Navbar Blur on Scroll
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) document.getElementById('navbar').classList.add('scrolled');
+      else document.getElementById('navbar').classList.remove('scrolled');
+    });
+
+    // 4. GSAP Hero Animations
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.from(".gsap-hero", {
+      y: 40, opacity: 0, duration: 1, stagger: 0.15, ease: "power4.out", delay: 0.2
+    });
+
+    // 5. Product Demo Auto-Sequence Loop
+    const tlDemo = gsap.timeline({ repeat: -1 });
+    const steps = document.querySelectorAll('.demo-step');
+    steps.forEach((step, index) => {
+      tlDemo.to(step, { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.5)" })
+        .to(step, { y: -20, opacity: 0, duration: 0.4, delay: 1.5 });
+    });
+
+    // 6. Scroll Reveals (Fade Up)
+    gsap.utils.toArray('.gsap-fade').forEach(el => {
+      gsap.from(el, {
+        scrollTrigger: { trigger: el, start: "top 85%" },
+        y: 40, opacity: 0, duration: 0.8, ease: "power3.out"
+      });
+    });
+
+    // 7. Conversational UI Stagger
+    gsap.to(".gsap-chat", {
+      scrollTrigger: { trigger: ".chat-ui", start: "top 75%" },
+      y: 0, opacity: 1, duration: 0.5, stagger: 0.8, ease: "power2.out"
+    });
+
+    // 8. Animated Counters
+    const counters = document.querySelectorAll('.counter');
+    counters.forEach(counter => {
+      ScrollTrigger.create({
+        trigger: counter,
+        start: "top 90%",
+        once: true,
+        onEnter: () => {
+          gsap.to(counter, {
+            innerHTML: counter.getAttribute('data-target'),
+            duration: 2, ease: "power2.out",
+            snap: { innerHTML: 1 },
+            onUpdate: function () { counter.innerHTML = Math.round(this.targets()[0].innerHTML).toLocaleString(); }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>

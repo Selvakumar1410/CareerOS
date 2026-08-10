@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Login to CareerOS — Your AI Career Operating System.">
+  <title>Login | CareerOS</title>
+  
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Premium Styles -->
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+
+  <!-- Custom Cursor Glow (from Landing Page) -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- ==================== BACKGROUND ECOSYSTEM ==================== -->
+  <div class="bg-layer radial-glow"></div>
+  <div class="bg-layer gradient-mesh"></div>
+  <div class="bg-layer blob-container">
+    <div class="blob-large"></div>
+    <div class="blob-small"></div>
+  </div>
+  <div class="bg-layer particle-container" id="particleContainer"></div>
+  <div class="bg-layer noise-texture"></div>
+
+  <!-- ==================== SPLIT SCREEN LAYOUT ==================== -->
+  <div class="layout-grid">
+    
+    <!-- LEFT PANEL (Branding & Features) -->
+    <div class="panel-left">
+      <div class="brand-logo">
+        <i data-lucide="zap" fill="currentColor"></i> CareerOS
+      </div>
+      
+      <h1 class="hero-heading">Your AI Career<br>Operating System</h1>
+      <p class="hero-subtitle">
+        Automatically organize job applications, interviews, assessments, and career insights all in one place.
+      </p>
+      
+      <div class="feature-highlights">
+        <div><i data-lucide="check-circle-2"></i> AI Email Parsing</div>
+        <div><i data-lucide="check-circle-2"></i> Smart Job Tracking</div>
+        <div><i data-lucide="check-circle-2"></i> Interview Timeline</div>
+        <div><i data-lucide="check-circle-2"></i> Analytics Dashboard</div>
+        <div><i data-lucide="check-circle-2"></i> AI Career Assistant</div>
+      </div>
+      
+      <!-- Mini Workflow Animation -->
+      <div class="mini-workflow">
+        <span><i data-lucide="mail"></i> Gmail</span>
+        <i data-lucide="arrow-right" class="wf-arrow"></i>
+        <span><i data-lucide="bot"></i> CareerAI</span>
+        <i data-lucide="arrow-right" class="wf-arrow"></i>
+        <span><i data-lucide="layout-dashboard"></i> Dashboard</span>
+      </div>
+    </div>
+    
+    <!-- RIGHT PANEL (Auth Card) -->
+    <div class="panel-right">
+      <div class="login-card">
+        
+        <div class="card-header">
+          <div class="card-logo">
+            <i data-lucide="user"></i>
+          </div>
+          <h2 class="card-title">Welcome Back</h2>
+          <p class="card-subtitle">Sign in to continue managing your career.</p>
+          
+          <!-- Animated Rotating Text -->
+          <div class="rotating-text-wrapper" id="rotatingTextContainer">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <!-- Premium Google Button -->
+        <div class="google-btn-wrapper">
+          <div id="g_id_onload"
+               data-client_id="857077381219-e278eg6rjejh53pcebr8u484e4buqu2p.apps.googleusercontent.com"
+               data-callback="handleLogin">
+          </div>
+          <!-- Real Google Sign In rendered over/as the button -->
+          <div class="g_id_signin" 
+               data-type="standard" 
+               data-size="large" 
+               data-theme="outline" 
+               data-text="sign_in_with" 
+               data-shape="rectangular" 
+               data-logo_alignment="left"
+               style="display: flex; justify-content: center; margin: 0 auto; width: 100%;">
+          </div>
+        </div>
+        
+        <div class="trust-text">
+          <i data-lucide="lock" style="width: 14px; height: 14px;"></i> Secure authentication powered by Google.
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <!-- GSAP & Lenis via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <!-- App Scripts -->
+  <script src="/js/config.js"></script>
+  <script src="/js/login.js"></script>
+  <script src="/js/animations.js"></script>
+  <script>
+    // Initialize Icons
+    lucide.createIcons();
+  </script>
+</body>
+</html>

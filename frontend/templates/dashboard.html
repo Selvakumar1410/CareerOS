@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | CareerOS{% endblock %}
+
+{% block head_css %}
+<style>
+/* Modal (Dashboard) */
+.modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(3px); padding:24px; }
+.modal-backdrop.hidden { display:none !important; }
+.modal-box { background:var(--panel-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); width:100%; max-width:480px; box-shadow:0 25px 50px rgba(0,0,0,0.15); animation:slideUp 0.2s ease; display:flex; flex-direction:column; max-height:100%; }
+@keyframes slideUp { from { transform:translateY(16px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+.modal-header { display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid var(--glass-border); }
+.modal-header h3 { font-size:1.1rem; font-weight:700; }
+.modal-body { padding:24px; display:flex; flex-direction:column; gap:16px; overflow-y:auto; }
+.modal-footer { display:flex; justify-content:flex-end; gap:10px; padding:16px 24px; border-top:1px solid var(--glass-border); background:var(--search-bg); border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+.form-group { display:flex; flex-direction:column; gap:6px; }
+.form-label { font-size:0.8rem; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.04em; }
+.form-input { padding:10px 14px; border:1px solid var(--glass-border); border-radius:9px; font-family:inherit; font-size:0.9rem; color:var(--text-primary); background:var(--search-bg); outline:none; transition:border-color 0.2s; }
+.form-input:focus { border-color:var(--accent-blue); background:var(--panel-bg); }
+.btn-outline { padding:8px 18px; border:1px solid var(--glass-border); border-radius:99px; background:transparent; font-weight:600; font-size:0.875rem; cursor:pointer; color:var(--text-primary); transition:all 0.2s; }
+.btn-outline:hover { background:var(--search-bg); border-color:var(--accent-blue); }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<section class="stats-grid section-fade-up" id="statsGrid">
+  <div class="stat-card" onclick="window.location.href='/applications'" style="cursor:pointer;">
+    <div class="stat-header"><span>Applications</span><div class="stat-icon blue"><i data-lucide="send"></i></div></div>
+    <div class="stat-value" id="statApplied">—</div>
+    <div class="stat-trend" style="color:var(--text-secondary);font-size:0.85rem;">Total tracked</div>
+  </div>
+  <div class="stat-card" onclick="window.location.href='/applications'" style="cursor:pointer;">
+    <div class="stat-header"><span>Assessments</span><div class="stat-icon purple"><i data-lucide="pen-tool"></i></div></div>
+    <div class="stat-value" id="statAssessment">—</div>
+    <div class="stat-trend" style="color:var(--text-secondary);font-size:0.85rem;" id="trendAssessment">0 pending</div>
+  </div>
+  <div class="stat-card" onclick="window.location.href='/applications'" style="cursor:pointer;">
+    <div class="stat-header"><span>Interviews</span><div class="stat-icon orange"><i data-lucide="mic"></i></div></div>
+    <div class="stat-value" id="statInterview">—</div>
+    <div class="stat-trend trend-up" id="trendInterview" style="font-size:0.85rem;">0 upcoming</div>
+  </div>
+  <div class="stat-card" onclick="window.location.href='/applications'" style="cursor:pointer;">
+    <div class="stat-header"><span>Offers</span><div class="stat-icon green"><i data-lucide="award"></i></div></div>
+    <div class="stat-value" id="statOffer">—</div>
+    <div class="stat-trend trend-up" style="font-size:0.85rem;">Congratulations!</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header"><span>Response Rate</span><div class="stat-icon blue"><i data-lucide="bar-chart-2"></i></div></div>
+    <div class="stat-value" id="statResponse">—</div>
+    <div class="stat-trend" style="color:var(--text-secondary);font-size:0.85rem;">Based on all apps</div>
+  </div>
+</section>
+
+<!-- Dashboard Split Grid -->
+<div class="dashboard-split-grid section-fade-up" style="animation-delay:0.1s;">
+
+  <!-- LEFT: Today's Focus + Recent Applications -->
+  <div class="split-left">
+
+    <!-- Today's Focus -->
+    <div class="dashboard-card mb-6">
+      <div class="section-header">
+        <h3><i data-lucide="sun" style="color:var(--status-interview);width:18px;height:18px;"></i> Today's Focus</h3>
+      </div>
+      <div id="todaysFocusList" class="task-list">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Upcoming Interviews -->
+    <div class="dashboard-card">
+      <div class="section-header">
+        <h3><i data-lucide="calendar" style="color:var(--accent-blue);width:18px;height:18px;"></i> Upcoming Interviews</h3>
+        <a href="/calendar" style="font-size:0.85rem;color:var(--accent-blue);text-decoration:none;font-weight:600;">View Calendar →</a>
+      </div>
+      <div id="upcomingInterviewsList">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: Recent Applications -->
+  <div class="split-right">
+
+    <div class="dashboard-card">
+      <div class="section-header">
+        <h3><i data-lucide="clock" style="color:var(--text-secondary);width:18px;height:18px;"></i> Recent Applications</h3>
+        <a href="/applications" style="font-size:0.85rem;color:var(--accent-blue);text-decoration:none;font-weight:600;">View All →</a>
+      </div>
+      <div id="recentAppsList" style="margin-top:16px;">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Add Application Modal -->
+<div id="addModal" class="modal-backdrop hidden" onclick="closeAddModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Add Application</h3>
+      <button onclick="closeAddModal()" style="background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--text-secondary);">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Company *</label>
+        <input type="text" id="addCompany" class="form-input" placeholder="e.g. Google">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role *</label>
+        <input type="text" id="addRole" class="form-input" placeholder="e.g. Software Engineer">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select id="addStatus" class="form-input">
+          <option value="Applied">Applied</option>
+          <option value="Assessment">Assessment</option>
+          <option value="Interview">Interview</option>
+          <option value="Offer">Offer</option>
+          <option value="Rejected">Rejected</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Applied Date</label>
+        <input type="date" id="addDate" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Interview Date</label>
+        <input type="date" id="addInterviewDate" class="form-input">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assessment Date</label>
+        <input type="date" id="addAssessmentDate" class="form-input">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-ai" id="btnSaveApp" onclick="saveApplication()">
+        <i data-lucide="plus" style="width:14px;"></i> Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/js/mvp-dashboard.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    MVPDashboard.init();
+  });
+</script>
+{% endblock %}

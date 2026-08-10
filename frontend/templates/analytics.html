@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Analytics | CareerOS{% endblock %}
+
+{% block content %}
+<div class="section-header" style="margin-bottom: 24px;">
+  <div>
+    <h2 class="text-2xl font-bold">Insights & Analytics</h2>
+    <p class="text-secondary">Visualize your application velocity, success rates, and interview funnels.</p>
+  </div>
+  <div class="view-toggle">
+    <button class="btn-outline" style="margin-right: 12px;">This Month</button>
+    <button class="btn-outline">All Time</button>
+  </div>
+</div>
+
+<div class="chart-card" style="box-shadow: var(--shadow-md);">
+  <div class="section-header">
+    <h3>Application Velocity</h3>
+  </div>
+  <div style="height: 400px; padding: 16px;">
+    <canvas id="mainChart"></canvas>
+  </div>
+</div>
+
+<!-- Toasts container -->
+<div id="toastContainer" class="toast-container"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/js/components/charts.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Initializing the charts from the old dashboard logic
+    if (typeof initCharts === 'function') {
+      try {
+        const response = await apiFetch("/api/jobs");
+        const jobs = response.jobs || [];
+        initCharts(jobs);
+      } catch (error) {
+        console.error("Failed to load analytics:", error);
+      }
+    }
+  });
+</script>
+{% endblock %}
