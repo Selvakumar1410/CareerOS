@@ -79,7 +79,14 @@
     {% block modals %}{% endblock %}
   </div>
 
-  <!-- Command Palette Modal Placeholder -->
+  <!-- Loading Overlay -->
+  <div id="globalSyncModal" class="loading-overlay">
+    <i data-lucide="loader" style="width: 48px; height: 48px; color: var(--accent-blue); animation: spin 1s linear infinite;"></i>
+    <h3 style="color: white; margin-top: 24px; font-weight: 600;">Syncing your Gmail...</h3>
+    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 8px;">Our AI is scanning your recent emails for job updates.<br>This might take up to a minute. Please don't close this page.</p>
+  </div>
+
+  <!-- Command Palette Modal -->
   <div id="commandPalette" class="modal-backdrop hidden" onclick="closeCommandPalette(event)" style="z-index: 1000; justify-content: center; align-items: flex-start; padding-top: 10vh;">
     <div class="command-palette-content" style="background: var(--panel-bg); border: 1px solid var(--glass-border); width: 600px; border-radius: var(--radius-lg); padding: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
       <div class="cp-search" style="display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--glass-border); padding-bottom: 16px; margin-bottom: 16px;">

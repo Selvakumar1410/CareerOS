@@ -278,18 +278,21 @@ const MVPDashboard = {
       btn.disabled = true;
       btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;animation:spin 1s linear infinite;"></i> Syncing...';
       if (typeof lucide !== 'undefined') lucide.createIcons();
+      if (typeof window.showGlobalSyncModal === 'function') window.showGlobalSyncModal();
+      
       try {
         const result = await apiFetch('/emails/scan');
         showToast(`Sync complete. ${result.jobs_extracted || 0} job(s) found.`, 'success');
         await this.loadJobs();
       } catch (e) {
-        if (e.message && e.message.includes('Gmail not connected')) {
-          showToast('Gmail not connected. Go to Settings to connect.', 'warning');
+        showToast((e.message || '').includes('not connected')
+          ? 'Gmail not connected. Click "Connect Gmail" in Settings.'
+          : (e.message || 'Sync failed. Try again.'), 'error');
+        if ((e.message || '').includes('not connected')) {
           setTimeout(() => window.location.href = '/settings', 2000);
-        } else {
-          showToast(e.message || 'Sync failed. Try again.', 'error');
         }
       } finally {
+        if (typeof window.hideGlobalSyncModal === 'function') window.hideGlobalSyncModal();
         btn.disabled = false;
         btn.innerHTML = '<i data-lucide="inbox"></i> Sync Gmail';
         if (typeof lucide !== 'undefined') lucide.createIcons();

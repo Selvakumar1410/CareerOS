@@ -90,6 +90,8 @@ const MVPSettings = {
       const btn = document.getElementById('btnSyncGmail');
       if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" style="width:14px;animation:spin 1s linear infinite;display:inline;"></i> Syncing...'; if (typeof lucide !== 'undefined') lucide.createIcons(); }
 
+      if (typeof window.showGlobalSyncModal === 'function') window.showGlobalSyncModal();
+
       try {
         const result = await apiFetch('/emails/scan');
         showToast(`Sync complete. ${result.jobs_extracted || 0} job(s) found.`, 'success');
@@ -100,6 +102,7 @@ const MVPSettings = {
           ? 'Gmail not connected. Click "Connect Gmail" first.'
           : (e.message || 'Sync failed. Try again.'), 'error');
       } finally {
+        if (typeof window.hideGlobalSyncModal === 'function') window.hideGlobalSyncModal();
         if (btn) {
           btn.disabled = false;
           btn.innerHTML = '<i data-lucide="refresh-cw" style="width:14px;height:14px;display:inline;"></i> Sync Now';

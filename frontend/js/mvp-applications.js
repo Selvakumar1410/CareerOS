@@ -265,6 +265,8 @@ const MVPApps = {
     const btn = document.getElementById('btnSyncGmailApps');
     if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader" style="width:14px;animation:spin 1s linear infinite;display:inline;"></i> Syncing...'; if (typeof lucide !== 'undefined') lucide.createIcons(); }
 
+    if (typeof window.showGlobalSyncModal === 'function') window.showGlobalSyncModal();
+
     try {
       const result = await apiFetch('/emails/scan');
       showToast(`Sync complete. ${result.jobs_extracted || 0} new job(s) found.`, 'success');
@@ -277,6 +279,7 @@ const MVPApps = {
         showToast(e.message || 'Gmail sync failed. Try again.', 'error');
       }
     } finally {
+      if (typeof window.hideGlobalSyncModal === 'function') window.hideGlobalSyncModal();
       if (btn) {
         btn.disabled = false;
         btn.innerHTML = '<i data-lucide="inbox" style="width:15px;height:15px;display:inline;vertical-align:middle;"></i> Sync Gmail';

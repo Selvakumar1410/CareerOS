@@ -99,7 +99,15 @@ async function apiFetch(path, options = {}) {
       return null;
     }
 
-    const data = await res.json();
+    let data;
+    const contentType = res.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      data = await res.json();
+    } else {
+      const text = await res.text();
+      if (!res.ok) throw new Error(`Server returned a timeout or error page (${res.status}). Please try again later.`);
+      data = text;
+    }
 
     if (!res.ok) {
       throw new Error(data.error || `Request failed (${res.status})`);
