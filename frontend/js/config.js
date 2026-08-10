@@ -45,8 +45,7 @@ function logout() {
 // ==================== THEME (DARK/LIGHT) ====================
 function initTheme() {
   const storedTheme = localStorage.getItem("theme");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const theme = storedTheme || (prefersDark ? "dark" : "light");
+  const theme = storedTheme || "dark"; // Default to dark mode per PRD
   
   if (theme === "dark") {
     document.documentElement.setAttribute("data-theme", "dark");

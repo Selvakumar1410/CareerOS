@@ -82,7 +82,7 @@ const MVPSettings = {
     // Connect Gmail
     document.getElementById('btnConnectGmail')?.addEventListener('click', () => {
       showToast('Redirecting to Gmail authorization...', 'info');
-      setTimeout(() => window.location.href = API_BASE + '/auth/gmail/connect', 500);
+      setTimeout(() => window.location.href = API_BASE + '/auth/gmail/connect?token=' + localStorage.getItem('jwt_token'), 500);
     });
 
     // Sync Gmail
