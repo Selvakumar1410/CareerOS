@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from .gemini_service import gemini_client
+from .groq_service import groq_client
 from .prompt_builder import EMAIL_PARSER_PROMPT
 
 class ParsedEmailJob(BaseModel):
@@ -19,7 +19,7 @@ class EmailService:
         email_data = f"Sender: {sender}\nDate: {date_str}\nSubject: {subject}\nBody: {body_text[:2000]}"
         prompt = EMAIL_PARSER_PROMPT.replace("{email_text}", email_data)
         
-        result_model = gemini_client.generate_structured(prompt, schema=ParsedEmailJob, context_data={})
+        result_model = groq_client.generate_structured(prompt, schema=ParsedEmailJob, context_data={})
         
         if not result_model:
             return None

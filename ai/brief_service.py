@@ -1,6 +1,6 @@
 import datetime
 import json
-from .gemini_service import gemini_client
+from .groq_service import groq_client
 from .context_service import get_user_brief_context
 from .prompt_builder import DAILY_BRIEF_PROMPT
 from db import get_db_connection
@@ -38,7 +38,7 @@ class BriefService:
         context_str = get_user_brief_context(user_id, today)
         if not context_str: return {"error": "Failed to fetch DB context"}
         
-        brief_model = gemini_client.generate_structured(
+        brief_model = groq_client.generate_structured(
             DAILY_BRIEF_PROMPT, 
             schema=DailyBrief, 
             context_data={"context": context_str}

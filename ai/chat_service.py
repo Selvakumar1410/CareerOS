@@ -1,4 +1,4 @@
-from .gemini_service import gemini_client
+from .groq_service import groq_client
 from .context_service import get_user_chat_context
 from .memory_service import MemoryService
 from .prompt_builder import build_chat_prompt
@@ -16,8 +16,8 @@ class ChatService:
         # 3. Construct the full prompt
         full_prompt = build_chat_prompt(db_context, chat_history, user_message)
         
-        # 4. Generate Response using Gemini
-        raw_response = gemini_client.generate_text(full_prompt)
+        # 4. Generate Response using Groq
+        raw_response = groq_client.generate_text(full_prompt)
         
         # 5. Format/Sanitize
         response_text = format_chat_response(raw_response)
