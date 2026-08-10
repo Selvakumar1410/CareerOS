@@ -9,4 +9,4 @@ def get_gemini_api_key():
         raise ValueError("GEMINI_API_KEY is not set in the environment variables.")
     return api_key
 
-DEFAULT_MODEL = "gemini-1.5-flash"
+DEFAULT_MODEL = "gemini-2.0-flash"
