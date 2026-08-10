@@ -2,15 +2,15 @@
    CareerOS | Premium Authentication Styling
    ===================================================================== */
 :root {
-  --bg-color: #0F0F13;
-  --text-primary: #FFFFFF;
-  --text-secondary: #9CA3AF;
-  --accent-blue: #3B82F6;
+  --bg-color: #FFFFFF;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --accent-blue: #4F6BFF;
   --accent-purple: #8B5CF6;
-  --glass-bg: rgba(25, 25, 30, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --soft-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5),
-                 0 10px 15px -5px rgba(0, 0, 0, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.45);
+  --soft-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.05),
+                 0 10px 15px -5px rgba(0, 0, 0, 0.02);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }

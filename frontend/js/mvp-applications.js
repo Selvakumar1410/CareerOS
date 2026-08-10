@@ -114,6 +114,7 @@ const MVPApps = {
           </td>
           <td style="font-weight:700;">${escapeHtml(j.company)}</td>
           <td style="color:var(--text-secondary);">${escapeHtml(j.role)}</td>
+          <td style="color:var(--text-secondary);">${escapeHtml(j.location || '—')}</td>
           <td><span class="status-pill sp-${escapeHtml(j.status)}">${escapeHtml(j.status)}</span></td>
           <td style="color:var(--text-secondary);font-size:0.82rem;">${applied}</td>
           <td style="color:var(--text-secondary);font-size:0.82rem;">${updated}</td>
@@ -146,6 +147,7 @@ const MVPApps = {
   async save() {
     const company = document.getElementById('addCompany')?.value.trim();
     const role    = document.getElementById('addRole')?.value.trim();
+    const location = document.getElementById('addLocation')?.value.trim();
     const status  = document.getElementById('addStatus')?.value || 'Applied';
     const date    = document.getElementById('addDate')?.value;
     const interviewDate = document.getElementById('addInterviewDate')?.value;
@@ -184,10 +186,10 @@ const MVPApps = {
   openEdit(id) {
     const job = this.allJobs.find(j => j.id === id);
     if (!job) return;
-    document.getElementById('editId').value      = job.id;
-    document.getElementById('editCompany').value = job.company;
-    document.getElementById('editRole').value    = job.role;
-    document.getElementById('editStatus').value  = job.status;
+    if (document.getElementById('editCompany')) document.getElementById('editCompany').value = job.company || '';
+    if (document.getElementById('editRole')) document.getElementById('editRole').value = job.role || '';
+    if (document.getElementById('editLocation')) document.getElementById('editLocation').value = job.location || '';
+    if (document.getElementById('editStatus')) document.getElementById('editStatus').value = job.status || 'Applied';
     document.getElementById('editDate').value    = (job.applied_date || '').split('T')[0];
     document.getElementById('editInterviewDate').value = (job.interview_date || '').split('T')[0];
     document.getElementById('editAssessmentDate').value = (job.assessment_date || '').split('T')[0];
@@ -198,6 +200,7 @@ const MVPApps = {
     const id      = document.getElementById('editId')?.value;
     const company = document.getElementById('editCompany')?.value.trim();
     const role    = document.getElementById('editRole')?.value.trim();
+    const location = document.getElementById('editLocation')?.value.trim();
     const status  = document.getElementById('editStatus')?.value;
     const date    = document.getElementById('editDate')?.value;
     const interviewDate = document.getElementById('editInterviewDate')?.value;
@@ -215,7 +218,7 @@ const MVPApps = {
       await apiFetch(`/jobs/${id}`, {
         method: 'PUT',
         body: JSON.stringify({ 
-          company, role, status, 
+          company, role, location, status, 
           applied_date: date || null,
           interview_date: interviewDate || null,
           assessment_date: assessmentDate || null 

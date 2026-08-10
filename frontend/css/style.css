@@ -7,16 +7,16 @@
 
 /* ==================== CSS VARIABLES ==================== */
 :root {
-  --bg-primary: #0F0F13;
-  --bg-secondary: #19191E;
-  --bg-card: rgba(25, 25, 30, 0.6);
-  --bg-card-hover: rgba(45, 45, 55, 0.8);
-  --bg-input: #121217;
-  --bg-overlay: rgba(0, 0, 0, 0.6);
+  --bg-primary: #F8FAFC;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F1F5F9;
+  --bg-input: #FFFFFF;
+  --bg-overlay: rgba(255, 255, 255, 0.6);
 
-  --text-primary: #FFFFFF;
-  --text-secondary: #9CA3AF;
-  --text-muted: #6B7280;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
 
   --accent-primary: #3B82F6;
   --accent-primary-hover: #2563EB;
@@ -35,7 +35,7 @@
   --color-warning: #F97316;
   --color-info: #3B82F6;
 
-  --border-color: rgba(255, 255, 255, 0.05);
+  --border-color: #E2E8F0;
   --border-radius: 12px;
   --border-radius-sm: 8px;
   --border-radius-full: 999px;

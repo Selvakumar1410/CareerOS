@@ -311,6 +311,7 @@ function closeAddModal(e) {
 async function saveApplication() {
   const company = document.getElementById('addCompany')?.value.trim();
   const role    = document.getElementById('addRole')?.value.trim();
+  const location = document.getElementById('addLocation')?.value.trim();
   const status  = document.getElementById('addStatus')?.value || 'Applied';
   const date    = document.getElementById('addDate')?.value;
   const interviewDate = document.getElementById('addInterviewDate')?.value;
@@ -323,7 +324,7 @@ async function saveApplication() {
     await apiFetch('/jobs', {
       method: 'POST',
       body: JSON.stringify({ 
-        company, role, status, 
+        company, role, location, status, 
         applied_date: date || null,
         interview_date: interviewDate || null,
         assessment_date: assessmentDate || null
