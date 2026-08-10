@@ -12,8 +12,22 @@ const MVPDashboard = {
   async init() {
     if (!requireAuth()) return;
     this.setTodayDate();
+    this.checkGmailStatus();
     await this.loadJobs();
     this.bindGmailSync();
+  },
+
+  async checkGmailStatus() {
+    try {
+      const data = await apiFetch('/auth/gmail/status');
+      const banner = document.getElementById('gmailAlertBanner');
+      if (banner && (!data || !data.connected)) {
+        banner.style.display = 'flex';
+      }
+    } catch (e) {
+      const banner = document.getElementById('gmailAlertBanner');
+      if (banner) banner.style.display = 'flex';
+    }
   },
 
   setTodayDate() {
