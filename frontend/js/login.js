@@ -54,7 +54,7 @@ function handleLogin(res) {
   const wrapper = document.querySelector(".google-btn-wrapper");
   if (wrapper) wrapper.style.opacity = "0.5";
 
-  fetch("http://localhost:5000/auth/google", {
+  fetch(`${API_BASE}/auth/google`, {
     method: "POST",
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify({token: res.credential})
