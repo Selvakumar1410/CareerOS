@@ -140,6 +140,17 @@
         { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out', clearProps: 'transform' }
       );
     }
+    
+    // Global Sync Modal logic
+    window.showGlobalSyncModal = function() {
+      const modal = document.getElementById('globalSyncModal');
+      if (modal) modal.classList.add('active');
+    };
+    
+    window.hideGlobalSyncModal = function() {
+      const modal = document.getElementById('globalSyncModal');
+      if (modal) modal.classList.remove('active');
+    };
   </script>
 </body>
 </html>

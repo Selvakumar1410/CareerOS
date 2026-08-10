@@ -25,11 +25,7 @@
 
 /* Settings grid */
 .settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-@media (max-width:768px) { 
-  .settings-grid { grid-template-columns:1fr; } 
-  .profile-hero { flex-direction: column; text-align: center; gap: 16px; padding: 24px 16px; }
-  .settings-row { flex-direction: column; align-items: flex-start; gap: 6px; }
-}
+
 
 .settings-card {
   background:var(--panel-bg); border:1px solid var(--glass-border);
@@ -57,6 +53,12 @@
 .sk { background:linear-gradient(90deg, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0.09) 50%, rgba(0,0,0,0.04) 100%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:8px; }
 [data-theme="dark"] .sk { background:linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 100%); background-size:200% 100%; }
 @keyframes shimmer { to { background-position:-200% 0; } }
+
+@media (max-width:768px) { 
+  .settings-grid { grid-template-columns:1fr; } 
+  .profile-hero { flex-direction: column; text-align: center; gap: 16px; padding: 24px 16px; }
+  .settings-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
 </style>
 {% endblock %}
 
