@@ -479,3 +479,34 @@ tbody tr:hover { background: rgba(0,0,0,0.01); }
 .bg-status-assessment { background: var(--status-assessment); }
 .bg-status-interview { background: var(--status-interview); }
 .bg-status-offer { background: var(--status-offer); }
+
+/* ==================== GLOBAL SYNC OVERLAY ==================== */
+.global-sync-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 26, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.global-sync-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.global-sync-overlay p {
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
