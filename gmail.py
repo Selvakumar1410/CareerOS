@@ -185,7 +185,7 @@ def gmail_callback():
         <p>Redirecting to dashboard...</p>
         <script>
             window.opener && window.opener.postMessage("gmail_connected", "*");
-            setTimeout(() => { window.location.href = "/frontend/dashboard.html"; }, 1500);
+            setTimeout(() => { window.location.href = "/dashboard"; }, 1500);
         </script>
     </body>
     </html>
