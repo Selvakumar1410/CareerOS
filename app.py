@@ -108,19 +108,19 @@ def settings():
 
 
 # ==================== AUTO-SCAN SCHEDULER ====================
-# Disabled to prevent exhausting Gemini Free Tier quota in the background
-# Users can still sync manually by clicking the Sync button in the UI.
-# scheduler = BackgroundScheduler()
-# scheduler.add_job(
-#     func=run_auto_scan_all,
-#     trigger="interval",
-#     minutes=GMAIL_SCAN_INTERVAL_MINUTES,
-#     id="gmail_auto_scan",
-#     name="Auto-scan Gmail for all connected users",
-#     replace_existing=True,
-# )
-# scheduler.start()
-# logger.info(f"📧 Auto-scan scheduler started (every {GMAIL_SCAN_INTERVAL_MINUTES} minutes)")
+# Re-enabled now that we are using lightning-fast Groq API instead of Gemini
+from apscheduler.schedulers.background import BackgroundScheduler
+scheduler = BackgroundScheduler()
+scheduler.add_job(
+    func=run_auto_scan_all,
+    trigger="interval",
+    minutes=int(os.environ.get("GMAIL_SCAN_INTERVAL_MINUTES", "5")),
+    id="gmail_auto_scan",
+    name="Auto-scan Gmail for all connected users",
+    replace_existing=True,
+)
+scheduler.start()
+logger.info(f"📧 Auto-scan scheduler started (every {os.environ.get('GMAIL_SCAN_INTERVAL_MINUTES', '5')} minutes)")
 
 
 # IMPORTANT for deployment
