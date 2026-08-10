@@ -226,15 +226,23 @@ body {
 }
 
 @media (max-width: 992px) {
-  /* Tablet: Centered layout */
-  .panel-left { display: none; }
-  .panel-right { width: 100%; }
+  /* Tablet & Mobile: Stack layout */
+  body { overflow-y: auto; height: auto; min-height: 100vh; }
+  .layout-grid { flex-direction: column; height: auto; }
+  .panel-left { width: 100%; padding: 40px 24px; text-align: center; justify-content: flex-start; }
+  .brand-logo { justify-content: center; margin-bottom: 30px; }
+  .hero-heading { font-size: 2.5rem; margin-bottom: 16px; }
+  .hero-subtitle { margin: 0 auto 30px auto; }
+  .feature-highlights { align-items: center; margin-bottom: 30px; }
+  .mini-workflow { margin: 0 auto; }
+  
+  .panel-right { width: 100%; padding: 40px 24px; }
   .blob-large { width: 600px; height: 600px; }
 }
 
 @media (max-width: 576px) {
   /* Mobile: One blob, full width card */
   .blob-small { display: none; }
-  .login-card { width: 92%; padding: 32px 24px; }
+  .login-card { width: 100%; padding: 32px 24px; }
   .card-title { font-size: 1.75rem; }
 }
