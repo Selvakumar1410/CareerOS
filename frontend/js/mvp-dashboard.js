@@ -287,7 +287,7 @@ const MVPDashboard = {
           showToast('Gmail not connected. Go to Settings to connect.', 'warning');
           setTimeout(() => window.location.href = '/settings', 2000);
         } else {
-          showToast('Sync failed. Try again.', 'error');
+          showToast(e.message || 'Sync failed. Try again.', 'error');
         }
       } finally {
         btn.disabled = false;

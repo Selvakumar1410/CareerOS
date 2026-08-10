@@ -274,7 +274,7 @@ const MVPApps = {
         showToast('Gmail not connected. Go to Settings to connect.', 'warning');
         setTimeout(() => window.location.href = '/settings', 2000);
       } else {
-        showToast('Gmail sync failed. Try again.', 'error');
+        showToast(e.message || 'Gmail sync failed. Try again.', 'error');
       }
     } finally {
       if (btn) {

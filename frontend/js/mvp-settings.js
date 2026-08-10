@@ -98,7 +98,7 @@ const MVPSettings = {
       } catch (e) {
         showToast((e.message || '').includes('not connected')
           ? 'Gmail not connected. Click "Connect Gmail" first.'
-          : 'Sync failed. Try again.', 'error');
+          : (e.message || 'Sync failed. Try again.'), 'error');
       } finally {
         if (btn) {
           btn.disabled = false;
