@@ -111,6 +111,14 @@ def settings():
 def google_verification():
     return "google-site-verification: googlecd7e7f504dbd2cc0.html"
 
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
 
 # ==================== AUTO-SCAN SCHEDULER ====================
 # Re-enabled now that we are using lightning-fast Groq API instead of Gemini

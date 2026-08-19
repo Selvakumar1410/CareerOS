@@ -46,7 +46,10 @@ const MVPSettings = {
         if (statusEl)   { statusEl.textContent = 'Connected'; statusEl.className = 'badge-ok'; }
         if (gmailEmail) gmailEmail.textContent = data.email || getUser()?.email || '—';
         if (lastSyncEl) lastSyncEl.textContent = data.last_sync ? formatDate(data.last_sync) : 'Never';
-        if (connectBtn) { connectBtn.innerHTML = '<i data-lucide="check" style="width:14px;height:14px;"></i> Connected'; connectBtn.disabled = true; }
+        if (connectBtn) { 
+          connectBtn.innerHTML = '<i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Reconnect Gmail'; 
+          connectBtn.disabled = false;
+        }
         if (typeof lucide !== 'undefined') lucide.createIcons();
       } else {
         if (statusEl) { statusEl.textContent = 'Not Connected'; statusEl.className = 'badge-off'; }

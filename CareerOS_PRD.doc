@@ -1,0 +1,1626 @@
+﻿<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>CareerOS PRD v1.0</title></head><body style="font-family:Calibri,Arial,sans-serif;font-size:12px;color:#111">
+
+        <h1>CareerOS — Product Requirements Document</h1>
+        <p class="sub">Full-Stack AI Job Tracker · Premium Neon Glassmorphic SaaS · v1.0 As-Built Documentation</p>
+        <div class="meta"><span>VERSION 1.0</span><span>DATE 2026-08-10</span><span>STATUS ✅ SHIPPED</span><span>OWNER
+                PRODUCT &amp; ENGINEERING</span><span>CLASSIFICATION INTERNAL</span></div>
+
+        <div class="card toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#s1">Executive Summary</a></li>
+                <li><a href="#s2">Problem Statement</a></li>
+                <li><a href="#s3">Goals, Non-Goals &amp; Success Metrics</a></li>
+                <li><a href="#s4">Target Users &amp; Personas</a></li>
+                <li><a href="#s5">User Stories</a></li>
+                <li><a href="#s6">Functional Requirements</a></li>
+                <li><a href="#s7">Non-Functional Requirements</a></li>
+                <li><a href="#s8">System Architecture</a></li>
+                <li><a href="#s9">Data Model</a></li>
+                <li><a href="#s10">API Specification</a></li>
+                <li><a href="#s11">AI Email Parsing Pipeline</a></li>
+                <li><a href="#s12">Design System — Neon Glassmorphic</a></li>
+                <li><a href="#s13">Page-by-Page UI Specification</a></li>
+                <li><a href="#s14">Security &amp; Privacy</a></li>
+                <li><a href="#s15">Error Handling &amp; Edge Cases</a></li>
+                <li><a href="#s16">Roadmap</a></li>
+                <li><a href="#s17">Acceptance Criteria &amp; QA Checklist</a></li>
+            </ol>
+        </div>
+
+        <div class="card" id="s1">
+            <h2>1. Executive Summary</h2>
+            <p><strong>CareerOS</strong> is a premium SaaS web application that functions as a specialized CRM for job
+                seekers. It automatically tracks a user's job application pipeline by connecting to their Gmail,
+                scanning for job-related emails, and using the Google Gemini LLM to extract structured data (Company,
+                Role, Status, Dates) — eliminating manual data entry entirely.</p>
+            <p>The product wraps this automation in a <strong>Kanban-based pipeline dashboard</strong>, a
+                spreadsheet-style <strong>Applications table</strong>, a <strong>Calendar view</strong>, and a
+                <strong>Settings command center</strong> — all rendered in a distinctive <strong>Neon
+                    Glassmorphic</strong> design language built with pure vanilla CSS.</p>
+            <blockquote><em>"Your job hunt, autopiloted. CareerOS reads your inbox and keeps your application pipeline
+                    updated — so you focus on interviews, not spreadsheets."</em></blockquote>
+            <h3>Tech Stack Summary</h3>
+            <table>
+                <tbody><tr>
+                    <th>Layer</th>
+                    <th>Technology</th>
+                    <th>Rationale</th>
+                </tr>
+                <tr>
+                    <td>Backend</td>
+                    <td>Python / Flask + modular Blueprints</td>
+                    <td>Lightweight, explicit routing, zero framework bloat</td>
+                </tr>
+                <tr>
+                    <td>Database</td>
+                    <td>PostgreSQL via raw <code>psycopg2</code></td>
+                    <td>No ORM — parameterized SQL for max performance + injection safety</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>Google Gmail API (OAuth2)</td>
+                    <td>Read-only access to incoming job emails</td>
+                </tr>
+                <tr>
+                    <td>AI</td>
+                    <td>Google Gemini (<code>google-genai</code>)</td>
+                    <td>NLP extraction from unstructured email bodies</td>
+                </tr>
+                <tr>
+                    <td>Frontend</td>
+                    <td>HTML5 + Vanilla JS (ES6+)</td>
+                    <td>No React/Vue — microscopic bundle size</td>
+                </tr>
+                <tr>
+                    <td>Styling</td>
+                    <td>Vanilla CSS</td>
+                    <td>No Tailwind — full control over glassmorphic design tokens</td>
+                </tr>
+            </tbody></table>
+        </div>
+
+        <div class="card" id="s2">
+            <h2>2. Problem Statement</h2>
+            <p>Job seekers applying to 30–150+ roles face a chaotic tracking problem:</p>
+            <ol>
+                <li><strong>Data is scattered</strong> — confirmations, assessments, and interview invites arrive as
+                    emails across LinkedIn, Naukri, Indeed, and direct company portals.</li>
+                <li><strong>Manual tracking fails</strong> — spreadsheets go stale within days; candidates miss
+                    interview dates and forget follow-ups.</li>
+                <li><strong>Status changes are invisible</strong> — a candidate often doesn't realize they've moved from
+                    "Applied" to "Interview" until they re-read old emails.</li>
+                <li><strong>No pipeline visibility</strong> — seekers can't see stage-wise conversion rates, making it
+                    impossible to diagnose where their funnel leaks.</li>
+            </ol>
+            <p><strong>CareerOS solves this by turning the inbox itself into the source of truth</strong>, using AI to
+                keep a live pipeline updated with zero manual effort.</p>
+        </div>
+
+        <div class="card" id="s3">
+            <h2>3. Goals, Non-Goals &amp; Success Metrics</h2>
+            <h3>3.1 Product Goals</h3>
+            <table>
+                <tbody><tr>
+                    <th>#</th>
+                    <th>Goal</th>
+                </tr>
+                <tr>
+                    <td>G1</td>
+                    <td>Zero manual data entry for 80%+ of tracked applications (Gmail autoparse)</td>
+                </tr>
+                <tr>
+                    <td>G2</td>
+                    <td>Pipeline status always reflects latest email evidence</td>
+                </tr>
+                <tr>
+                    <td>G3</td>
+                    <td>Sub-300ms API responses for all non-LLM operations</td>
+                </tr>
+                <tr>
+                    <td>G4</td>
+                    <td>A UI that feels premium, fast, and "alive" (micro-interactions, glow, glass)</td>
+                </tr>
+                <tr>
+                    <td>G5</td>
+                    <td>Extensible architecture so future AI agents drop in without refactors</td>
+                </tr>
+            </tbody></table>
+            <h3>3.2 Non-Goals (v1)</h3>
+            <ul>
+                <li>❌ Applying to jobs on the user's behalf</li>
+                <li>❌ Resume building / tailoring (roadmap v2)</li>
+                <li>❌ Mobile native apps</li>
+                <li>❌ Team / multi-user collaboration features</li>
+                <li>❌ Writing / sending emails</li>
+            </ul>
+            <h3>3.3 Success Metrics (KPIs)</h3>
+            <table>
+                <tbody><tr>
+                    <th>Metric</th>
+                    <th>Definition</th>
+                    <th>Target</th>
+                </tr>
+                <tr>
+                    <td>Sync Activation Rate</td>
+                    <td>Users who connect Gmail within 24h of signup</td>
+                    <td>≥ 60%</td>
+                </tr>
+                <tr>
+                    <td>Parse Success Rate</td>
+                    <td>Emails yielding valid structured JSON from Gemini</td>
+                    <td>≥ 85%</td>
+                </tr>
+                <tr>
+                    <td>Autoparse Share</td>
+                    <td>Applications created via Gmail vs Manual</td>
+                    <td>≥ 70 / 30</td>
+                </tr>
+                <tr>
+                    <td>Weekly Active Syncs</td>
+                    <td>Avg. sync runs per active user per week</td>
+                    <td>≥ 3</td>
+                </tr>
+                <tr>
+                    <td>Dashboard Load (p95)</td>
+                    <td>Time to interactive on dashboard</td>
+                    <td>&lt; 1.5s</td>
+                </tr>
+                <tr>
+                    <td>API Latency (p95)</td>
+                    <td>Non-LLM endpoints</td>
+                    <td>&lt; 300ms</td>
+                </tr>
+            </tbody></table>
+        </div>
+
+        <div class="card" id="s4">
+            <h2>4. Target Users &amp; Personas</h2>
+            <h3>Persona 1 — "Active Applicant Ava" (Primary)</h3>
+            <ul>
+                <li>Final-year student / early-career professional, applying to 10–20 jobs/week via LinkedIn, Naukri,
+                    Indeed.</li>
+                <li>Pain: Loses track of which companies responded; misses assessment deadlines.</li>
+                <li>Need: Automatic pipeline updates + upcoming-interview alerts.</li>
+            </ul>
+            <h3>Persona 2 — "Power User Priyanshu" (Secondary)</h3>
+            <ul>
+                <li>Mid-career professional doing a focused job switch; 40–80 applications.</li>
+                <li>Pain: Wants conversion analytics and a clean calendar of all events.</li>
+                <li>Need: Stats panel, calendar view, manual override of AI-parsed data.</li>
+            </ul>
+        </div>
+
+        <div class="card" id="s5">
+            <h2>5. User Stories</h2>
+            <table>
+                <tbody><tr>
+                    <th>ID</th>
+                    <th>As a…</th>
+                    <th>I want to…</th>
+                    <th>So that…</th>
+                    <th>Priority</th>
+                </tr>
+                <tr>
+                    <td>US-01</td>
+                    <td>Job seeker</td>
+                    <td>Connect my Gmail securely</td>
+                    <td>CareerOS can read my job emails</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>US-02</td>
+                    <td>Job seeker</td>
+                    <td>Click "Sync Gmail"</td>
+                    <td>New applications are auto-created and statuses auto-updated</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>US-03</td>
+                    <td>Job seeker</td>
+                    <td>See a Kanban board grouped by status</td>
+                    <td>I understand my pipeline at a glance</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>US-04</td>
+                    <td>Job seeker</td>
+                    <td>Change a card's status</td>
+                    <td>The database updates instantly</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>US-05</td>
+                    <td>Job seeker</td>
+                    <td>See upcoming interviews filtered by future date</td>
+                    <td>I never miss one</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>US-06</td>
+                    <td>Job seeker</td>
+                    <td>Add/edit/delete applications manually</td>
+                    <td>I can track offline referrals</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>US-07</td>
+                    <td>Job seeker</td>
+                    <td>View all applications in a table with search &amp; filters</td>
+                    <td>I can do granular lookups</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>US-08</td>
+                    <td>Job seeker</td>
+                    <td>See a monthly calendar plotting applied/assessment/interview dates</td>
+                    <td>I can plan my week</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>US-09</td>
+                    <td>Job seeker</td>
+                    <td>See conversion rates per stage</td>
+                    <td>I know where my funnel leaks</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>US-10</td>
+                    <td>Job seeker</td>
+                    <td>See the exact timestamp of my last successful scan</td>
+                    <td>I trust the data is fresh</td>
+                    <td>P2</td>
+                </tr>
+            </tbody></table>
+        </div>
+
+        <div class="card" id="s6">
+            <h2>6. Functional Requirements</h2>
+            <p>Priority legend: <strong>P0</strong> = must ship · <strong>P1</strong> = should ship ·
+                <strong>P2</strong> = nice to have</p>
+            <h3>F1 — Authentication &amp; Sessions</h3>
+            <table>
+                <tbody><tr>
+                    <th>ID</th>
+                    <th>Requirement</th>
+                    <th>Priority</th>
+                </tr>
+                <tr>
+                    <td>F1.1</td>
+                    <td>Users register with name, email, password. Passwords hashed with a salted hash (werkzeug/bcrypt)
+                        — never stored in plaintext</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F1.2</td>
+                    <td>Users log in/out via session-based auth; protected routes reject unauthenticated requests via
+                        middleware decorator</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F1.3</td>
+                    <td>Unauthenticated users hitting any <code>/api/*</code>, <code>/dashboard</code>,
+                        <code>/applications</code>, <code>/calendar</code>, <code>/settings</code> route are redirected
+                        to login</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F1.4</td>
+                    <td>Session cookies set with <code>HttpOnly</code>, <code>SameSite=Lax</code>, <code>Secure</code>
+                        (in production)</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F1.5</td>
+                    <td>Duplicate email registration returns a clean validation error</td>
+                    <td>P1</td>
+                </tr>
+            </tbody></table>
+            <h3>F2 — Dashboard (Kanban + Analytics Panel)</h3>
+            <table>
+                <tbody><tr>
+                    <th>ID</th>
+                    <th>Requirement</th>
+                    <th>Priority</th>
+                </tr>
+                <tr>
+                    <td>F2.1</td>
+                    <td>70/30 split-grid layout: 70% Kanban board, 30% analytics/control panel</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F2.2</td>
+                    <td>Kanban columns map exactly to pipeline statuses: <span class="b">Applied → Shortlisted →
+                            Assessment → Interview → Offer</span>, plus <span class="r">Rejected</span></td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F2.3</td>
+                    <td>Each card shows company, role, location, applied date, and source badge (Manual / Gmail)</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F2.4</td>
+                    <td>Changing a card's status (drag or status selector) fires an immediate PATCH to the DB and
+                        optimistically updates the UI</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F2.5</td>
+                    <td>Right panel computes: total applications, per-stage counts, stage-to-stage conversion rates,
+                        overall funnel</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F2.6</td>
+                    <td>Right panel lists <strong>Upcoming Interviews</strong>: applications where
+                        <code>interview_date &gt;= TODAY</code>, sorted ascending</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F2.7</td>
+                    <td>Empty states for each column and for zero-data users (with CTA to connect Gmail)</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F2.8</td>
+                    <td>Column counts displayed as live badges</td>
+                    <td>P1</td>
+                </tr>
+            </tbody></table>
+            <h3>F3 — Applications (Table View + CRUD)</h3>
+            <table>
+                <tbody><tr>
+                    <th>ID</th>
+                    <th>Requirement</th>
+                    <th>Priority</th>
+                </tr>
+                <tr>
+                    <td>F3.1</td>
+                    <td>Spreadsheet-style table: Company, Role, Location, Status, Applied Date, Assessment Date,
+                        Interview Date, Source, Actions</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F3.2</td>
+                    <td>Manual <strong>Add Application</strong> via glassmorphic modal with validation (company + role
+                        required)</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F3.3</td>
+                    <td><strong>Edit</strong> via modal pre-populated with row data</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F3.4</td>
+                    <td><strong>Delete</strong> with confirmation modal</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F3.5</td>
+                    <td>Client-side search across company/role/location</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F3.6</td>
+                    <td>Filter dropdowns: Status, Source</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F3.7</td>
+                    <td>All rendered user data passed through global <code>escapeHtml()</code> before DOM insertion</td>
+                    <td>P0</td>
+                </tr>
+            </tbody></table>
+            <h3>F4 — Calendar</h3>
+            <table>
+                <tbody><tr>
+                    <th>ID</th>
+                    <th>Requirement</th>
+                    <th>Priority</th>
+                </tr>
+                <tr>
+                    <td>F4.1</td>
+                    <td>Monthly grid view with prev/next month navigation and "Today" highlight</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F4.2</td>
+                    <td>Applications plot on <code>applied_date</code>, <code>assessment_date</code>, and
+                        <code>interview_date</code> as color-coded chips per date type</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F4.3</td>
+                    <td>Clicking a day reveals that day's events (popover or side list)</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F4.4</td>
+                    <td>Chip colors match the status/date-type neon palette from the design system</td>
+                    <td>P2</td>
+                </tr>
+            </tbody></table>
+            <h3>F5 — Gmail Integration</h3>
+            <table>
+                <tbody><tr>
+                    <th>ID</th>
+                    <th>Requirement</th>
+                    <th>Priority</th>
+                </tr>
+                <tr>
+                    <td>F5.1</td>
+                    <td>OAuth2 connect flow initiated from Settings; consent scope limited to
+                        <code>gmail.readonly</code></td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F5.2</td>
+                    <td>Access + refresh tokens stored server-side in <code>gmail_tokens</code> table — never exposed to
+                        frontend</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F5.3</td>
+                    <td><strong>Sync Gmail</strong> button triggers a scan of recent emails matching job-related
+                        keywords + known job-board domains</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F5.4</td>
+                    <td>Already-processed <code>email_message_id</code>s are skipped (idempotent syncs)</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F5.5</td>
+                    <td>Settings displays connection status + timestamp of last successful scan</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F5.6</td>
+                    <td>Disconnect option revokes local token storage</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F5.7</td>
+                    <td>Expired/revoked tokens degrade gracefully → UI prompts reconnection</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F5.8</td>
+                    <td>Background scheduled sync (APScheduler/cron)</td>
+                    <td>P2 (roadmap)</td>
+                </tr>
+            </tbody></table>
+            <h3>F6 — AI Parsing &amp; Merge Engine</h3>
+            <table>
+                <tbody><tr>
+                    <th>ID</th>
+                    <th>Requirement</th>
+                    <th>Priority</th>
+                </tr>
+                <tr>
+                    <td>F6.1</td>
+                    <td>Raw email HTML is stripped/cleaned before being sent to Gemini</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F6.2</td>
+                    <td>Gemini returns strict JSON:
+                        <code>company, role, status, applied_date, assessment_date, interview_date, location, confidence</code>
+                    </td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F6.3</td>
+                    <td><strong>Merge rule:</strong> if a matching application exists (same user + normalized company),
+                        status only ever <em>progresses forward</em> (§11.5), and missing dates are back-filled</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F6.4</td>
+                    <td><strong>Create rule:</strong> if no match exists, a new application is inserted with
+                        <code>source='gmail'</code> and <code>email_message_id</code></td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F6.5</td>
+                    <td>Low-confidence or malformed AI responses are logged and skipped — never crash the sync</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F6.6</td>
+                    <td><code>Rejected</code> is terminal; parsed updates to a rejected application are ignored except
+                        for notes</td>
+                    <td>P1</td>
+                </tr>
+            </tbody></table>
+            <h3>F7 — Settings</h3>
+            <table>
+                <tbody><tr>
+                    <th>ID</th>
+                    <th>Requirement</th>
+                    <th>Priority</th>
+                </tr>
+                <tr>
+                    <td>F7.1</td>
+                    <td>Google OAuth connection card: status pill (Connected/Not Connected), Connect/Disconnect, Sync
+                        Now, last-scan timestamp</td>
+                    <td>P0</td>
+                </tr>
+                <tr>
+                    <td>F7.2</td>
+                    <td>Account card: name, email</td>
+                    <td>P1</td>
+                </tr>
+                <tr>
+                    <td>F7.3</td>
+                    <td>Sync history log (last N scans, counts of created/updated)</td>
+                    <td>P2</td>
+                </tr>
+            </tbody></table>
+        </div>
+
+        <div class="card" id="s7">
+            <h2>7. Non-Functional Requirements</h2>
+            <table>
+                <tbody><tr>
+                    <th>Category</th>
+                    <th>Requirement</th>
+                </tr>
+                <tr>
+                    <td>Performance</td>
+                    <td>Non-LLM API endpoints p95 &lt; 300ms. Total JS+CSS payload &lt; 100KB (no frameworks). Dashboard
+                        TTI &lt; 1.5s on mid-range hardware</td>
+                </tr>
+                <tr>
+                    <td>Scalability</td>
+                    <td>Blueprint architecture: new AI agents (Resume Tailor, Cover Letter Generator) mount into
+                        <code>ai/</code> without touching core routes. DB queries indexed on
+                        <code>(user_id, status)</code> and <code>(user_id, applied_date)</code></td>
+                </tr>
+                <tr>
+                    <td>Security</td>
+                    <td>100% parameterized SQL (<code>%s</code>) — no string-built queries. XSS sanitization via
+                        <code>escapeHtml()</code>. Server-side token vault. Auth middleware on all protected routes</td>
+                </tr>
+                <tr>
+                    <td>Reliability</td>
+                    <td>Sync is idempotent and resumable. LLM failures isolated per-email; one bad email never aborts a
+                        batch</td>
+                </tr>
+                <tr>
+                    <td>Browser Support</td>
+                    <td>Latest Chrome, Edge, Firefox, Safari. <code>backdrop-filter</code> required (graceful solid-dark
+                        fallback via <code>@supports</code>)</td>
+                </tr>
+                <tr>
+                    <td>Accessibility</td>
+                    <td>WCAG AA contrast on text over dark surfaces; keyboard navigable modals; focus-visible states;
+                        <code>prefers-reduced-motion</code> respected</td>
+                </tr>
+                <tr>
+                    <td>Maintainability</td>
+                    <td>Vanilla architecture = zero dependency-churn risk. All SQL in repository-style functions, no
+                        inline query strings in route handlers</td>
+                </tr>
+            </tbody></table>
+        </div>
+
+        <div class="card" id="s8">
+            <h2>8. System Architecture</h2>
+            <h3>8.1 High-Level Diagram</h3>
+            <pre>┌─────────────────────────── CLIENT (Browser) ───────────────────────────┐
+│  HTML5 + Vanilla JS (ES6+) + Vanilla CSS ("Neon Glassmorphic")          │
+│  Pages: Dashboard · Applications · Calendar · Settings · Auth           │
+│  escapeHtml() sanitization · Fetch API · Optimistic UI updates          │
+└───────────────────────────────┬────────────────────────────────────────┘
+                                │ HTTPS (JSON)
+┌───────────────────────────────▼────────────────────────────────────────┐
+│                     FLASK APPLICATION SERVER                            │
+│  auth_middleware (session guard on all protected routes)                │
+│  ┌──────────────┐ ──────────────┐ ┌──────────────┐ ┌──────────────┐   │
+│  │ Blueprint    │ │ Blueprint    │ │ Blueprint    │ │ Blueprint    │   │
+│  │ auth.py      │ │ jobs.py      │ │ gmail.py     │ │ ai/routes.py │   │
+│  │ register     │ │ CRUD jobs    │ │ OAuth2 flow  │ │ parse_email()│   │
+│  │ login/logout │ │ stats API    │ │ token vault  │ │ merge_logic()│   │
+│  │ sessions     │ │ kanban PATCH │ │ sync trigger │ │ Gemini calls │   │
+│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘ └──────┬───────┘   │
+└─────────┼────────────────┼────────────────┼────────────────┼───────────┘
+          │  raw psycopg2 (parameterized SQL only)            │
+┌─────────▼────────────────▼───────┐        ┌────────────────▼─────────┐
+│        PostgreSQL                │        │   Google Gemini API      │
+│  users · job_applications        │        │   (google-genai SDK)     │
+│  gmail_tokens · sync_logs        │        │   JSON-mode extraction   │
+└──────────────────────────────────┘        └──────────────────────────┘
+                         gmail.py ────────▶  ┌──────────────────────────┐
+                         (OAuth2 tokens)     │  Google Gmail API        │
+                                             │  scope: gmail.readonly   │
+                                             └──────────────────────────┘</pre>
+            <h3>8.2 Project Structure</h3>
+            <pre>career-os/
+├── app.py                  # Flask app factory, blueprint registration
+├── config.py               # env vars, Gemini key, Google OAuth creds
+├── db.py                   # psycopg2 connection + query helpers
+├── blueprints/
+│   ├── auth.py             # register, login, logout, middleware
+│   ├── jobs.py             # CRUD + stats + status PATCH
+│   └── gmail.py            # OAuth connect/callback, sync trigger
+├── ai/
+│   ├── routes.py           # internal parse endpoints
+│   ├── parser.py           # email cleaning → Gemini prompt → JSON
+│   └── merge.py            # dedupe + status-progression logic
+├── static/
+│   ├── css/                # design-system tokens + component styles
+│   └── js/                 # per-page vanilla JS modules + escapeHtml()
+└── templates/              # Jinja2 HTML shells</pre>
+            <h3>8.3 Gmail Sync Sequence</h3>
+            <pre>User clicks "Sync Gmail"
+   │
+   ▼
+POST /gmail/sync ──▶ auth middleware ──▶ load tokens (gmail_tokens)
+   │
+   ▼
+Gmail API: messages.list(query = keywords + domains + after:date)
+   │
+   ▼
+FOR each message_id:
+   ├─ IF message_id already processed → SKIP
+   ├─ Fetch raw email → strip HTML → clean text
+   ├─ Send to Gemini with structured prompt → JSON response
+   ├─ Validate JSON (required fields, enum status, date formats)
+   ├─ merge.py:
+   │    ├─ normalize(company) → lookup existing app (user_id, company)
+   │    ├─ EXISTS  → progress status forward + back-fill dates → UPDATE
+   │    └─ NEW     → INSERT (source='gmail', email_message_id=...)
+   └─ Log result to sync_logs
+   │
+   ▼
+Return summary { created: n, updated: m, skipped: k, errors: e }</pre>
+        </div>
+
+        <div class="card" id="s9">
+            <h2>9. Data Model</h2>
+            <h3>9.1 Entity Relationship</h3>
+            <pre>users 1 ──── * job_applications
+users 1 ──── 1 gmail_tokens
+users 1 ──── * sync_logs</pre>
+            <h3>9.2 Schema DDL</h3>
+            <pre>CREATE TABLE users (
+    id            SERIAL PRIMARY KEY,
+    name          VARCHAR(120) NOT NULL,
+    email         VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at    TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE job_applications (
+    id               SERIAL PRIMARY KEY,
+    user_id          INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    company          VARCHAR(200) NOT NULL,
+    role             VARCHAR(200) NOT NULL,
+    location         VARCHAR(200),
+    status           VARCHAR(20) NOT NULL DEFAULT 'Applied'
+                     CHECK (status IN ('Applied','Shortlisted','Assessment',
+                                       'Interview','Offer','Rejected')),
+    applied_date     DATE,
+    assessment_date  DATE,
+    interview_date   DATE,
+    source           VARCHAR(10) NOT NULL DEFAULT 'manual'
+                     CHECK (source IN ('manual','gmail')),
+    email_message_id VARCHAR(255),
+    notes            TEXT,
+    created_at       TIMESTAMP DEFAULT NOW(),
+    updated_at       TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_jobs_user_status  ON job_applications (user_id, status);
+CREATE INDEX idx_jobs_user_applied ON job_applications (user_id, applied_date);
+CREATE INDEX idx_jobs_msg_id       ON job_applications (email_message_id);
+
+CREATE TABLE gmail_tokens (
+    id            SERIAL PRIMARY KEY,
+    user_id       INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    access_token  TEXT NOT NULL,
+    refresh_token TEXT,
+    expiry        TIMESTAMP,
+    scope         VARCHAR(255),
+    connected_at  TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE sync_logs (
+    id           SERIAL PRIMARY KEY,
+    user_id      INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    started_at   TIMESTAMP DEFAULT NOW(),
+    finished_at  TIMESTAMP,
+    emails_found INTEGER DEFAULT 0,
+    created      INTEGER DEFAULT 0,
+    updated      INTEGER DEFAULT 0,
+    skipped      INTEGER DEFAULT 0,
+    errors       INTEGER DEFAULT 0,
+    status       VARCHAR(20) DEFAULT 'running'   -- running | success | failed
+);</pre>
+        </div>
+
+        <div class="card" id="s10">
+            <h2>10. API Specification</h2>
+            <p>All protected routes return <code>401</code> when unauthenticated. All responses are JSON.</p>
+            <h3>10.1 Auth</h3>
+            <table>
+                <tbody><tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                    <th>Auth</th>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td><code>/auth/register</code></td>
+                    <td>Create account <code>{name, email, password}</code></td>
+                    <td>✗</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td><code>/auth/login</code></td>
+                    <td>Session login <code>{email, password}</code></td>
+                    <td>✗</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td><code>/auth/logout</code></td>
+                    <td>Destroy session</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td><code>/auth/me</code></td>
+                    <td>Current user info</td>
+                    <td>✓</td>
+                </tr>
+            </tbody></table>
+            <h3>10.2 Jobs</h3>
+            <table>
+                <tbody><tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                    <th>Auth</th>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td><code>/api/jobs</code></td>
+                    <td>List applications. Query params: <code>status</code>, <code>source</code>, <code>q</code></td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td><code>/api/jobs/stats</code></td>
+                    <td>Stage counts, conversion rates, upcoming interviews</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td><code>/api/jobs</code></td>
+                    <td>Create application (manual)</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>PUT</td>
+                    <td><code>/api/jobs/&lt;id&gt;</code></td>
+                    <td>Update fields</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>PATCH</td>
+                    <td><code>/api/jobs/&lt;id&gt;/status</code></td>
+                    <td>Kanban status change <code>{status}</code></td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>DELETE</td>
+                    <td><code>/api/jobs/&lt;id&gt;</code></td>
+                    <td>Delete application</td>
+                    <td>✓</td>
+                </tr>
+            </tbody></table>
+            <p><strong>Example — <code>GET /api/jobs/stats</code> response:</strong></p>
+            <pre>{
+  "total": 42,
+  "by_status": { "Applied": 18, "Shortlisted": 9, "Assessment": 5,
+                 "Interview": 6, "Offer": 2, "Rejected": 2 },
+  "conversion": { "applied_to_shortlisted": 57.1, "overall_offer_rate": 4.8 },
+  "upcoming_interviews": [
+    { "id": 31, "company": "Stripe", "role": "Backend Engineer",
+      "interview_date": "2026-08-14" }
+  ]
+}</pre>
+            <h3>10.3 Gmail</h3>
+            <table>
+                <tbody><tr>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>Description</th>
+                    <th>Auth</th>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td><code>/gmail/connect</code></td>
+                    <td>Redirect to Google OAuth consent</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td><code>/gmail/callback</code></td>
+                    <td>Exchange code → store tokens</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td><code>/gmail/disconnect</code></td>
+                    <td>Delete stored tokens</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>POST</td>
+                    <td><code>/gmail/sync</code></td>
+                    <td>Run full scan → parse → merge pipeline</td>
+                    <td>✓</td>
+                </tr>
+                <tr>
+                    <td>GET</td>
+                    <td><code>/gmail/status</code></td>
+                    <td>Connection state + last successful scan timestamp</td>
+                    <td>✓</td>
+                </tr>
+            </tbody></table>
+            <h3>10.4 Error Envelope</h3>
+            <pre>{ "error": true, "code": "VALIDATION_FAILED", "message": "Company is required." }</pre>
+            <table>
+                <tbody><tr>
+                    <th>HTTP</th>
+                    <th>Code</th>
+                    <th>Meaning</th>
+                </tr>
+                <tr>
+                    <td>400</td>
+                    <td><code>VALIDATION_FAILED</code></td>
+                    <td>Bad input</td>
+                </tr>
+                <tr>
+                    <td>401</td>
+                    <td><code>UNAUTHORIZED</code></td>
+                    <td>No/invalid session</td>
+                </tr>
+                <tr>
+                    <td>402</td>
+                    <td><code>GMAIL_NOT_CONNECTED</code></td>
+                    <td>Sync attempted without OAuth</td>
+                </tr>
+                <tr>
+                    <td>404</td>
+                    <td><code>NOT_FOUND</code></td>
+                    <td>Resource missing or not owned by user</td>
+                </tr>
+                <tr>
+                    <td>429</td>
+                    <td><code>RATE_LIMITED</code></td>
+                    <td>Too many sync/LLM calls</td>
+                </tr>
+                <tr>
+                    <td>502</td>
+                    <td><code>UPSTREAM_FAILED</code></td>
+                    <td>Gmail/Gemini API failure</td>
+                </tr>
+            </tbody></table>
+        </div>
+
+        <div class="card" id="s11">
+            <h2>11. AI Email Parsing Pipeline (The Crown Jewel)</h2>
+            <h3>11.1 Gmail Query Strategy</h3>
+            <pre>Query template:
+  newer_than:30d AND (
+    (application OR interview OR assessment OR offer OR shortlisted
+     OR "your application" OR "we reviewed")
+    OR from:(linkedin.com | naukri.com | indeed.com | wellfound.com)
+  )</pre>
+            <h3>11.2 Email Cleaning</h3>
+            <ol>
+                <li>Decode MIME parts → prefer <code>text/plain</code>, fall back to stripped <code>text/html</code>.
+                </li>
+                <li>Remove signatures, unsubscribe footers, tracking pixels, base64 images.</li>
+                <li>Truncate to first ~4,000 chars (job signals live at the top of emails).</li>
+            </ol>
+            <h3>11.3 Gemini Prompt (Contract)</h3>
+            <pre>SYSTEM:
+You are a job-application email parser. Extract structured data from the
+email below. Respond with ONLY valid JSON matching the schema. No prose.
+If a field cannot be determined, use null. Dates MUST be "YYYY-MM-DD".
+"status" MUST be exactly one of: Applied, Shortlisted, Assessment,
+Interview, Offer, Rejected.
+
+USER:
+{cleaned_email_body}
+
+EXPECTED JSON:
+{
+  "is_job_related": boolean,
+  "company": string|null,
+  "role": string|null,
+  "location": string|null,
+  "status": "Applied|Shortlisted|Assessment|Interview|Offer|Rejected"|null,
+  "applied_date": "YYYY-MM-DD"|null,
+  "assessment_date": "YYYY-MM-DD"|null,
+  "interview_date": "YYYY-MM-DD"|null,
+  "confidence": number 0.0–1.0
+}</pre>
+            <h3>11.4 Validation Gate (Before Merge)</h3>
+            <p>A parse result is <strong>accepted</strong> only if:</p>
+            <ul>
+                <li><code>is_job_related == true</code></li>
+                <li><code>company</code> is non-empty</li>
+                <li><code>status</code> is in the allowed enum</li>
+                <li>All provided dates parse as valid <code>YYYY-MM-DD</code></li>
+                <li><code>confidence &gt;= 0.6</code></li>
+            </ul>
+            <p>Otherwise → logged to <code>sync_logs.errors</code>, email skipped.</p>
+            <h3>11.5 Merge Rules &amp; Status Rank</h3>
+            <pre>Status ranks:  Applied=1 &lt; Shortlisted=2 &lt; Assessment=3 &lt; Interview=4 &lt; Offer=5
+               Rejected = terminal (handled separately)</pre>
+            <table>
+                <tbody><tr>
+                    <th>Scenario</th>
+                    <th>Action</th>
+                </tr>
+                <tr>
+                    <td>No existing app for normalized <code>(user_id, company)</code></td>
+                    <td><code>INSERT</code> with <code>source='gmail'</code></td>
+                </tr>
+                <tr>
+                    <td>Existing app, parsed rank &gt; current rank</td>
+                    <td><code>UPDATE</code> status forward</td>
+                </tr>
+                <tr>
+                    <td>Existing app, parsed rank ≤ current rank</td>
+                    <td>Keep current status (no downgrades)</td>
+                </tr>
+                <tr>
+                    <td>Parsed date for a field that is NULL</td>
+                    <td>Back-fill the date</td>
+                </tr>
+                <tr>
+                    <td>App is <code>Rejected</code></td>
+                    <td>Ignore all updates</td>
+                </tr>
+                <tr>
+                    <td>Parsed status is <code>Rejected</code></td>
+                    <td>Set to <code>Rejected</code> regardless of rank</td>
+                </tr>
+            </tbody></table>
+            <p><strong>Company normalization:</strong> lowercase → strip punctuation → remove legal suffixes
+                (<code>inc</code>, <code>ltd</code>, <code>llc</code>, <code>pvt</code>) → trim.
+                <code>"Stripe, Inc."</code> ≡ <code>"stripe"</code>.</p>
+        </div>
+
+        <div class="card" id="s12">
+            <h2>12. Design System — "Neon Glassmorphic SaaS"</h2>
+            <h3>12.1 Design Principles</h3>
+            <ol>
+                <li><strong>Dark-first, always.</strong> The canvas is near-black; light exists only as glow.</li>
+                <li><strong>Glass over chrome.</strong> Content lives on translucent blurred layers, never opaque
+                    panels.</li>
+                <li><strong>Neon is semantic.</strong> Glow color = pipeline status. Color is data, not decoration.</li>
+                <li><strong>Motion is magnetic.</strong> Elements respond to proximity — subtle lifts, pulls, glow
+                    blooms. Nothing snaps.</li>
+                <li><strong>Data density with breathing room.</strong> Spreadsheet-grade information, gallery-grade
+                    presentation.</li>
+            </ol>
+            <h3>12.2 Color Tokens — Base Surfaces</h3>
+            <table>
+                <tbody><tr>
+                    <th>Token</th>
+                    <th>Value</th>
+                    <th>Usage</th>
+                </tr>
+                <tr>
+                    <td><code>--bg-base</code></td>
+                    <td><code>#0F0F13</code></td>
+                    <td>App canvas</td>
+                </tr>
+                <tr>
+                    <td><code>--bg-elevated</code></td>
+                    <td><code>rgba(255,255,255,0.04)</code></td>
+                    <td>Hover surfaces</td>
+                </tr>
+                <tr>
+                    <td><code>--glass-bg</code></td>
+                    <td><code>linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))</code></td>
+                    <td>Card fill</td>
+                </tr>
+                <tr>
+                    <td><code>--glass-border</code></td>
+                    <td><code>rgba(255,255,255,0.08)</code></td>
+                    <td>1px card borders</td>
+                </tr>
+                <tr>
+                    <td><code>--glass-blur</code></td>
+                    <td><code>blur(12px) saturate(140%)</code></td>
+                    <td>backdrop-filter</td>
+                </tr>
+            </tbody></table>
+            <h3>Text Tokens</h3>
+            <table>
+                <tbody><tr>
+                    <th>Token</th>
+                    <th>Value</th>
+                    <th>Usage</th>
+                </tr>
+                <tr>
+                    <td><code>--text-primary</code></td>
+                    <td><code>#F5F5F7</code></td>
+                    <td>Headings, key data</td>
+                </tr>
+                <tr>
+                    <td><code>--text-secondary</code></td>
+                    <td><code>#9A9AA5</code></td>
+                    <td>Body copy</td>
+                </tr>
+                <tr>
+                    <td><code>--text-muted</code></td>
+                    <td><code>#5C5C66</code></td>
+                    <td>Timestamps, hints</td>
+                </tr>
+            </tbody></table>
+            <h3>Neon Status Accents <em>(glow = accent @ 30% alpha)</em></h3>
+            <table>
+                <tbody><tr>
+                    <th>Status</th>
+                    <th>Token</th>
+                    <th>Hex</th>
+                    <th>Glow</th>
+                </tr>
+                <tr>
+                    <td><span class="b">Applied</span></td>
+                    <td><code>--neon-applied</code></td>
+                    <td><code>#4DA3FF</code></td>
+                    <td><code>0 0 24px rgba(77,163,255,.30)</code></td>
+                </tr>
+                <tr>
+                    <td><span class="v">Shortlisted</span></td>
+                    <td><code>--neon-shortlisted</code></td>
+                    <td><code>#A78BFA</code></td>
+                    <td><code>0 0 24px rgba(167,139,250,.30)</code></td>
+                </tr>
+                <tr>
+                    <td><span class="a">Assessment</span></td>
+                    <td><code>--neon-assessment</code></td>
+                    <td><code>#FFB454</code></td>
+                    <td><code>0 0 24px rgba(255,180,84,.30)</code></td>
+                </tr>
+                <tr>
+                    <td><span class="p">Interview</span></td>
+                    <td><code>--neon-interview</code></td>
+                    <td><code>#FF6AC1</code></td>
+                    <td><code>0 0 24px rgba(255,106,193,.30)</code></td>
+                </tr>
+                <tr>
+                    <td><span class="g">Offer</span></td>
+                    <td><code>--neon-offer</code></td>
+                    <td><code>#3DF2B6</code></td>
+                    <td><code>0 0 24px rgba(61,242,182,.35)</code></td>
+                </tr>
+                <tr>
+                    <td><span class="r">Rejected</span></td>
+                    <td><code>--neon-rejected</code></td>
+                    <td><code>#FF5C7A</code></td>
+                    <td><code>0 0 24px rgba(255,92,122,.25)</code></td>
+                </tr>
+            </tbody></table>
+            <h3>12.3 Typography</h3>
+            <table>
+                <tbody><tr>
+                    <th>Role</th>
+                    <th>Family</th>
+                    <th>Weights</th>
+                </tr>
+                <tr>
+                    <td>Display / Headings</td>
+                    <td><strong>Space Grotesk</strong></td>
+                    <td>600, 700</td>
+                </tr>
+                <tr>
+                    <td>UI / Body</td>
+                    <td><strong>Inter</strong></td>
+                    <td>400, 500, 600</td>
+                </tr>
+                <tr>
+                    <td>Data / Dates / Numbers</td>
+                    <td><strong>JetBrains Mono</strong></td>
+                    <td>400, 500</td>
+                </tr>
+            </tbody></table>
+            <p><strong>Scale:</strong> <code>28 / 22 / 18 / 16 / 14 / 13 / 12</code> px · line-height 1.2 (headings) /
+                1.5 (body) · letter-spacing <code>+0.02em</code> on uppercase labels.</p>
+            <h3>12.4 Space, Radius, Elevation</h3>
+            <table>
+                <tbody><tr>
+                    <th>Token</th>
+                    <th>Value</th>
+                    <th>Token</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td><code>--space-1</code></td>
+                    <td>4px</td>
+                    <td><code>--radius-sm</code></td>
+                    <td>8px</td>
+                </tr>
+                <tr>
+                    <td><code>--space-2</code></td>
+                    <td>8px</td>
+                    <td><code>--radius-md</code></td>
+                    <td>12px</td>
+                </tr>
+                <tr>
+                    <td><code>--space-3</code></td>
+                    <td>12px</td>
+                    <td><code>--radius-lg</code></td>
+                    <td>16px (cards)</td>
+                </tr>
+                <tr>
+                    <td><code>--space-4</code></td>
+                    <td>16px</td>
+                    <td><code>--radius-pill</code></td>
+                    <td>999px</td>
+                </tr>
+                <tr>
+                    <td><code>--space-6</code></td>
+                    <td>24px</td>
+                    <td><code>--shadow-glass</code></td>
+                    <td><code>0 8px 32px rgba(0,0,0,.45)</code></td>
+                </tr>
+                <tr>
+                    <td><code>--space-8</code></td>
+                    <td>32px</td>
+                    <td><code>--shadow-lift</code></td>
+                    <td><code>0 16px 48px rgba(0,0,0,.6)</code></td>
+                </tr>
+            </tbody></table>
+            <h3>12.5 Glassmorphism Reference Recipe</h3>
+            <pre>.glass-card {
+  background: linear-gradient(160deg,
+    rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+}
+@supports not (backdrop-filter: blur(12px)) {
+  .glass-card { background: #17171d; } /* solid fallback */
+}</pre>
+            <h3>12.6 Motion System</h3>
+            <table>
+                <tbody><tr>
+                    <th>Type</th>
+                    <th>Duration</th>
+                    <th>Easing</th>
+                    <th>Trigger</th>
+                </tr>
+                <tr>
+                    <td>Micro (hover, focus)</td>
+                    <td>150ms</td>
+                    <td><code>cubic-bezier(0.22,1,0.36,1)</code></td>
+                    <td>pointer enter/leave</td>
+                </tr>
+                <tr>
+                    <td>Standard (modals, panels)</td>
+                    <td>250ms</td>
+                    <td>same</td>
+                    <td>open/close</td>
+                </tr>
+                <tr>
+                    <td>Page/board transitions</td>
+                    <td>350ms</td>
+                    <td>same</td>
+                    <td>route change, drag drop</td>
+                </tr>
+                <tr>
+                    <td><strong>Magnetic button</strong></td>
+                    <td>continuous</td>
+                    <td>—</td>
+                    <td>element translates ≤ 4px toward cursor within hover radius</td>
+                </tr>
+                <tr>
+                    <td><strong>Card lift</strong></td>
+                    <td>150ms</td>
+                    <td>—</td>
+                    <td><code>translateY(-2px)</code> + glow bloom on hover</td>
+                </tr>
+                <tr>
+                    <td><strong>Kanban drop</strong></td>
+                    <td>250ms</td>
+                    <td>—</td>
+                    <td>target column border glows in dragged card's status color</td>
+                </tr>
+            </tbody></table>
+            <p><code>prefers-reduced-motion: reduce</code> → disable magnetic + lift effects, keep instant opacity
+                fades.</p>
+            <h3>12.7 Component Library</h3>
+            <table>
+                <tbody><tr>
+                    <th>Component</th>
+                    <th>Spec</th>
+                </tr>
+                <tr>
+                    <td><strong>GlassCard</strong></td>
+                    <td>Recipe above. Padding <code>--space-4</code>.</td>
+                </tr>
+                <tr>
+                    <td><strong>KanbanCard</strong></td>
+                    <td>GlassCard, <code>--radius-md</code>; left 3px accent bar in status neon; company (16/600), role
+                        (13/secondary), location + date row (12/mono/muted); source pill top-right.</td>
+                </tr>
+                <tr>
+                    <td><strong>KanbanColumn</strong></td>
+                    <td>Fixed 280px width; header = status pill + count badge; vertical scroll; horizontal board scroll.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>StatusPill</strong></td>
+                    <td>Pill radius; text = accent color; bg = accent @ 12% alpha; border accent @ 30%.</td>
+                </tr>
+                <tr>
+                    <td><strong>StatCard</strong></td>
+                    <td>GlassCard with mono 28px value, 12px uppercase label, thin gradient progress bar in relevant
+                        neon.</td>
+                </tr>
+                <tr>
+                    <td><strong>Modal ("Floating Command Center")</strong></td>
+                    <td>Centered glass panel, <code>blur(20px)</code> scrim <code>rgba(15,15,19,.7)</code>; scale-in
+                        .96→1 + fade 250ms; slide-in variant from right for edit forms.</td>
+                </tr>
+                <tr>
+                    <td><strong>DataTable</strong></td>
+                    <td>No outer borders; row hover = <code>--bg-elevated</code>; sticky header; 13px data cells, mono
+                        for dates.</td>
+                </tr>
+                <tr>
+                    <td><strong>Inputs</strong></td>
+                    <td>Dark inset field <code>rgba(0,0,0,.3)</code>; 1px <code>--glass-border</code>; focus = 1px
+                        neon-blue border + soft glow ring.</td>
+                </tr>
+                <tr>
+                    <td><strong>Buttons</strong></td>
+                    <td><strong>Primary:</strong> neon gradient (blue→violet) with glow shadow, magnetic.
+                        <strong>Ghost:</strong> transparent + glass border. <strong>Danger:</strong>
+                        <code>--neon-rejected</code> outline. All <code>--radius-md</code>, 40px height.</td>
+                </tr>
+                <tr>
+                    <td><strong>Toast</strong></td>
+                    <td>Bottom-right glass pill, auto-dismiss 4s, left accent bar by type (success green / error red /
+                        info blue).</td>
+                </tr>
+                <tr>
+                    <td><strong>EmptyState</strong></td>
+                    <td>Dashed glass container, 40px line icon, headline + one CTA.</td>
+                </tr>
+            </tbody></table>
+            <h3>12.8 Layout System</h3>
+            <table>
+                <tbody><tr>
+                    <th>Zone</th>
+                    <th>Spec</th>
+                </tr>
+                <tr>
+                    <td>App shell</td>
+                    <td>Fixed left sidebar (72px collapsed / 240px expanded) — logo, nav icons, user chip. Top content
+                        area scrolls independently.</td>
+                </tr>
+                <tr>
+                    <td>Dashboard grid</td>
+                    <td><code>display:grid; grid-template-columns: 7fr 3fr; gap: 24px;</code></td>
+                </tr>
+                <tr>
+                    <td>Breakpoints</td>
+                    <td>≥1280px: full 70/30 · 1024–1279px: sidebar collapses to icons · &lt;1024px: analytics panel
+                        stacks below board · &lt;640px: single column, kanban becomes horizontal swipe</td>
+                </tr>
+            </tbody></table>
+        </div>
+
+        <div class="card" id="s13">
+            <h2>13. Page-by-Page UI Specification</h2>
+            <h3>13.1 Dashboard</h3>
+            <table>
+                <tbody><tr>
+                    <th>Zone</th>
+                    <th>Contents &amp; Behavior</th>
+                </tr>
+                <tr>
+                    <td>Header bar</td>
+                    <td>Greeting ("Good morning, Ava"), last-sync chip, <strong>Sync Gmail</strong> (ghost), <strong>+
+                            Add Application</strong> (primary, magnetic)</td>
+                </tr>
+                <tr>
+                    <td>Kanban board (70%)</td>
+                    <td>6 status columns. Cards draggable between columns → optimistic UI +
+                        <code>PATCH /api/jobs/:id/status</code>. On failure → rollback + error toast. Cards clickable →
+                        edit modal.</td>
+                </tr>
+                <tr>
+                    <td>Analytics panel (30%)</td>
+                    <td>① Total applications StatCard ② Funnel bar (per-stage counts as neon gradient segments) ③
+                        Conversion rates list ④ <strong>Upcoming Interviews</strong> — cards filtered by
+                        <code>interview_date &gt;= today</code>, sorted ascending, pink accent, "in N days" label</td>
+                </tr>
+                <tr>
+                    <td>Empty state</td>
+                    <td>Zero-data users see an onboarding glass card: "Connect Gmail to auto-track your pipeline" +
+                        connect CTA</td>
+                </tr>
+            </tbody></table>
+            <h3>13.2 Applications</h3>
+            <table>
+                <tbody><tr>
+                    <th>Zone</th>
+                    <th>Contents &amp; Behavior</th>
+                </tr>
+                <tr>
+                    <td>Toolbar</td>
+                    <td>Search input, Status filter, Source filter, <strong>+ Add</strong> button</td>
+                </tr>
+                <tr>
+                    <td>Table</td>
+                    <td>All columns per F3.1. Status rendered as StatusPill; Source as small badge (⚡ Gmail / ✍️
+                        Manual); row actions: Edit, Delete</td>
+                </tr>
+                <tr>
+                    <td>Add/Edit modal</td>
+                    <td>Slide-in glass panel from right. Fields: Company*, Role*, Location, Status (select),
+                        Applied/Assessment/Interview dates (date pickers), Notes. Inline validation.</td>
+                </tr>
+                <tr>
+                    <td>Delete</td>
+                    <td>Confirmation modal with danger button; row animates out on success</td>
+                </tr>
+            </tbody></table>
+            <h3>13.3 Calendar</h3>
+            <table>
+                <tbody><tr>
+                    <th>Zone</th>
+                    <th>Contents &amp; Behavior</th>
+                </tr>
+                <tr>
+                    <td>Header</td>
+                    <td>Month/year title, ‹ › navigation, "Today" button</td>
+                </tr>
+                <tr>
+                    <td>Grid</td>
+                    <td>7-column month grid; today's cell has a neon outline; event chips: <span class="b">blue</span> =
+                        applied, <span class="a">amber</span> = assessment, <span class="p">pink</span> = interview; max
+                        3 chips + "+N more"</td>
+                </tr>
+                <tr>
+                    <td>Interaction</td>
+                    <td>Click day → glass popover listing that day's events with links to edit</td>
+                </tr>
+            </tbody></table>
+            <h3>13.4 Settings</h3>
+            <table>
+                <tbody><tr>
+                    <th>Card</th>
+                    <th>Contents &amp; Behavior</th>
+                </tr>
+                <tr>
+                    <td>Gmail Connection</td>
+                    <td>Status pill (● Connected / ○ Not connected), connected email, <strong>Connect /
+                            Disconnect</strong>, <strong>Sync Now</strong>, last successful scan timestamp (mono)</td>
+                </tr>
+                <tr>
+                    <td>Account</td>
+                    <td>Name, email (read-only), logout</td>
+                </tr>
+                <tr>
+                    <td>Sync History <em>(P2)</em></td>
+                    <td>Table of last 10 syncs: timestamp, found/created/updated/errors</td>
+                </tr>
+            </tbody></table>
+            <h3>13.5 Auth Pages</h3>
+            <p>Login/register on centered glass card over <code>#0F0F13</code> with a subtle ambient radial glow
+                (blue/violet, 8% alpha) behind it. Brand wordmark in Space Grotesk with a neon gradient accent.</p>
+        </div>
+
+        <div class="card" id="s14">
+            <h2>14. Security &amp; Privacy</h2>
+            <table>
+                <tbody><tr>
+                    <th>Area</th>
+                    <th>Implementation</th>
+                </tr>
+                <tr>
+                    <td>Password storage</td>
+                    <td>Salted hash (werkzeug/bcrypt). Never logged, never returned in APIs</td>
+                </tr>
+                <tr>
+                    <td>Auth middleware</td>
+                    <td>Decorator guards every protected route; session cookie
+                        <code>HttpOnly; SameSite=Lax; Secure</code></td>
+                </tr>
+                <tr>
+                    <td>SQL Injection</td>
+                    <td>100% parameterized queries via <code>%s</code> placeholders through psycopg2. Zero string
+                        interpolation into SQL</td>
+                </tr>
+                <tr>
+                    <td>XSS</td>
+                    <td>Global JS <code>escapeHtml()</code> applied to all user-controlled strings before
+                        <code>innerHTML</code> insertion; Jinja2 autoescape on for server-rendered templates</td>
+                </tr>
+                <tr>
+                    <td>CSRF</td>
+                    <td>Token required on all state-changing POST/PATCH/DELETE</td>
+                </tr>
+                <tr>
+                    <td>OAuth tokens</td>
+                    <td>Stored only in <code>gmail_tokens</code> (server-side). Never serialized to frontend. Refresh
+                        handled transparently</td>
+                </tr>
+                <tr>
+                    <td>Least privilege</td>
+                    <td>Gmail scope = <code>gmail.readonly</code>. CareerOS never sends email</td>
+                </tr>
+                <tr>
+                    <td>Data isolation</td>
+                    <td>Every query filters by <code>user_id</code> from session; ownership checked on update/delete
+                        (404 on foreign resources)</td>
+                </tr>
+                <tr>
+                    <td>AI data handling</td>
+                    <td>Email bodies sent to Gemini contain only the cleaned text (no attachments/credentials); no email
+                        content persisted beyond the parsed structured fields</td>
+                </tr>
+            </tbody></table>
+        </div>
+
+        <div class="card" id="s15">
+            <h2>15. Error Handling &amp; Edge Cases</h2>
+            <table>
+                <tbody><tr>
+                    <th>#</th>
+                    <th>Scenario</th>
+                    <th>Handling</th>
+                </tr>
+                <tr>
+                    <td>E1</td>
+                    <td>Gemini returns malformed JSON</td>
+                    <td>Retry once with stricter prompt → if still invalid, log + skip email</td>
+                </tr>
+                <tr>
+                    <td>E2</td>
+                    <td><code>confidence &lt; 0.6</code></td>
+                    <td>Skip; count in <code>sync_logs.skipped</code></td>
+                </tr>
+                <tr>
+                    <td>E3</td>
+                    <td>Duplicate company names w/ different casing ("Stripe" vs "stripe, inc.")</td>
+                    <td>Normalized match (§11.5)</td>
+                </tr>
+                <tr>
+                    <td>E4</td>
+                    <td>Gmail token expired mid-sync</td>
+                    <td>Attempt refresh once → on failure abort gracefully, UI shows "Reconnect Gmail"</td>
+                </tr>
+                <tr>
+                    <td>E5</td>
+                    <td>Two emails for same company in one batch (Applied then Interview)</td>
+                    <td>Process oldest-first; second naturally progresses status</td>
+                </tr>
+                <tr>
+                    <td>E6</td>
+                    <td>Parsed <code>applied_date</code> in the future</td>
+                    <td>Discard date, keep record</td>
+                </tr>
+                <tr>
+                    <td>E7</td>
+                    <td>User manually edits an AI-created record</td>
+                    <td>Manual data always wins; future syncs won't overwrite user-edited fields except forward status
+                        progression</td>
+                </tr>
+                <tr>
+                    <td>E8</td>
+                    <td>Gemini rate limit (429)</td>
+                    <td>Exponential backoff (1s → 2s → 4s), then stop batch, save progress</td>
+                </tr>
+                <tr>
+                    <td>E9</td>
+                    <td><code>backdrop-filter</code> unsupported</td>
+                    <td><code>@supports</code> solid-dark fallback</td>
+                </tr>
+                <tr>
+                    <td>E10</td>
+                    <td>Timezones</td>
+                    <td>All dates stored/compared as DATE; "upcoming" computed against server <code>CURRENT_DATE</code>
+                    </td>
+                </tr>
+            </tbody></table>
+        </div>
+
+        <div class="card" id="s16">
+            <h2>16. Roadmap</h2>
+            <h3>v1.1 — Next</h3>
+            <ul>
+                <li>⏱ <strong>Background scheduler</strong> (APScheduler) for automatic periodic syncs</li>
+                <li>🔍 <strong>Review queue</strong> for low-confidence parses (approve/edit before merge)</li>
+                <li>🖱 Drag-and-drop polish (touch support, keyboard-accessible status moves)</li>
+                <li>📧 Sync history UI in Settings (expose <code>sync_logs</code>)</li>
+            </ul>
+            <h3>v2.0 — AI Agents Platform</h3>
+            <ul>
+                <li>📄 <strong>Resume Tailor agent</strong> in <code>ai/</code> — generates tailored resume bullets per
+                    role</li>
+                <li>✍️ <strong>Cover Letter Generator agent</strong> — drops into <code>ai/routes.py</code> with zero
+                    core changes</li>
+                <li>💰 Salary/compensation field + negotiation tracker</li>
+                <li>🔗 LinkedIn profile import of past applications</li>
+                <li>📊 Weekly email digest ("3 interviews this week, 2 assessments due")</li>
+            </ul>
+            <h3>v3.0 — Vision</h3>
+            <ul>
+                <li>Multi-account tracking, referral graph, and mock-interview agent</li>
+            </ul>
+        </div>
+
+        <div class="card" id="s17">
+            <h2>17. Acceptance Criteria &amp; QA Checklist</h2>
+            <p><strong>Critical Path (must pass before any release):</strong></p>
+            <ul>
+                <li>☐ Register → Login → Dashboard reachable; unauthenticated access blocked on all routes</li>
+                <li>☐ Gmail OAuth connect stores tokens; disconnect removes them</li>
+                <li>☐ "Sync Gmail" creates new applications with <code>source='gmail'</code> and correct fields</li>
+                <li>☐ Re-running sync is idempotent — no duplicates created</li>
+                <li>☐ An "Interview invite" email for an existing company progresses <code>Applied → Interview</code>
+                    and back-fills <code>interview_date</code></li>
+                <li>☐ Status never regresses via sync</li>
+                <li>☐ Kanban status change persists immediately (verify in DB)</li>
+                <li>☐ Upcoming Interviews shows only future-dated entries, sorted correctly</li>
+                <li>☐ Calendar plots all three date types on correct days</li>
+                <li>☐ XSS test: application named <code>&lt;img src=x onerror=alert(1)&gt;</code> renders inert</li>
+                <li>☐ SQL injection test: <code>'; DROP TABLE users;--</code> in any input returns validation error</li>
+                <li>☐ Malformed Gemini response does not crash sync</li>
+                <li>☐ All glass surfaces fall back correctly without <code>backdrop-filter</code></li>
+                <li>☐ Reduced-motion preference respected</li>
+                <li>☐ Non-LLM endpoints p95 &lt; 300ms under 50 concurrent users</li>
+            </ul>
+            <hr>
+            <h3>Appendix A — Glossary</h3>
+            <table>
+                <tbody><tr>
+                    <th>Term</th>
+                    <th>Definition</th>
+                </tr>
+                <tr>
+                    <td>Pipeline</td>
+                    <td>The ordered lifecycle: Applied → Shortlisted → Assessment → Interview → Offer (+ Rejected)</td>
+                </tr>
+                <tr>
+                    <td>Sync</td>
+                    <td>One full run of Gmail scan → Gemini parse → merge</td>
+                </tr>
+                <tr>
+                    <td>Merge</td>
+                    <td>Matching a parsed email to an existing application and progressing it</td>
+                </tr>
+                <tr>
+                    <td>Floating Command Center</td>
+                    <td>The glassmorphic modal pattern used for all forms</td>
+                </tr>
+                <tr>
+                    <td>Neon Glassmorphic</td>
+                    <td>CareerOS design language: dark canvas + blurred glass + semantic neon glow</td>
+                </tr>
+            </tbody></table>
+            <p style="color:var(--t3);text-align:center;margin-top:20px">— End of document · CareerOS PRD v1.0 —</p>
+        </div>
+
+    </body></html>
