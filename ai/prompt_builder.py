@@ -23,8 +23,9 @@ Analyze the text carefully and identify the following:
 - Application Date (Format as YYYY-MM-DD. If not explicitly stated, infer it from the email headers or context, otherwise return 'Unknown')
 
 Filtering Rules:
-- Ignore promotional material, generic job alerts (e.g., "10 new jobs for you"), or newsletter content. 
-- Only extract data if the email is a clear confirmation of a submitted application, an interview invitation, or a status update.
+- Ignore promotional material, generic job alerts (e.g., "10 new jobs for you"), or newsletter content. If it is not a direct job application or update for the user, set confidence to "low" and confidence_score to 0.
+- Only extract data if the email is a clear confirmation of a submitted application, an interview invitation, or a status update. Set confidence to "high" and confidence_score to 100 for clear job updates.
+- Assign the closest matching status from: Applied, Shortlisted, Assessment, Interview, Offer, Rejected.
 
 Email Text:
 {email_text}

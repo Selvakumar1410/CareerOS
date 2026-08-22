@@ -32,7 +32,15 @@ class GroqService:
                     response_format={"type": "json_object"}
                 )
                 
-                content = response.choices[0].message.content
+                content = response.choices[0].message.content.strip()
+                if content.startswith("```json"):
+                    content = content[7:]
+                if content.startswith("```"):
+                    content = content[3:]
+                if content.endswith("```"):
+                    content = content[:-3]
+                content = content.strip()
+                
                 data = json.loads(content)
                 return schema.model_validate(data)
                 
