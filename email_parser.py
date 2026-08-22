@@ -557,12 +557,12 @@ def is_job_related_email(subject, body_text, sender):
 
     # Strict list of negative triggers
     negative_patterns = [
-        "reset your password", "verify your email", "welcome to indeed", "welcome to linkedin", 
+        "welcome to indeed", "welcome to linkedin", 
         "welcome to shine", "welcome to naukri", "similar jobs", "leaderboard", "weekly digest", 
         "recommendation", "top suggestions", "skills required to become", "last few days to enroll",
         "quiz", "contest", "coding challenge is open for registration", "invitation to connect", 
-        "people are viewing your profile", "monthly leaderboard", "verify email", "your password", 
-        "verify your account", "complete your profile", "activate your account", "welcome to codechef"
+        "people are viewing your profile", "monthly leaderboard", 
+        "complete your profile", "welcome to codechef"
     ]
     if any(pat in text for pat in negative_patterns):
         return False

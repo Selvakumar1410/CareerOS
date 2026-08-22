@@ -255,11 +255,11 @@ def scan_emails():
     if not service:
         return jsonify({"error": "Gmail not connected. Please connect Gmail first."}), 400
 
-    days = request.args.get("days", "7")
+    days = request.args.get("days", "14")
     try:
         days = int(days)
     except ValueError:
-        days = 7
+        days = 14
 
     # Search for job-related emails
     query = (
