@@ -9,4 +9,4 @@ def get_groq_api_key():
         raise ValueError("GROQ_API_KEY is not set in the environment variables.")
     return api_key
 
-DEFAULT_MODEL = "llama-3.3-70b-versatile"
+DEFAULT_MODEL = "openai/gpt-oss-120b"
