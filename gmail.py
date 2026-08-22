@@ -275,7 +275,7 @@ def scan_emails():
         results = service.users().messages().list(
             userId="me",
             q=query,
-            maxResults=30,
+            maxResults=10,
         ).execute()
 
         messages = results.get("messages", [])
@@ -424,12 +424,12 @@ def auto_scan_user(user_id):
         "subject:(application OR applied OR interview OR shortlisted OR offer OR rejected OR assessment) "
         "OR from:(naukri OR linkedin OR indeed OR glassdoor OR instahyre OR cutshort OR internshala) "
         ") "
-        "newer_than:1d"
+        "newer_than:14d"
     )
 
     try:
         results = service.users().messages().list(
-            userId="me", q=query, maxResults=30
+            userId="me", q=query, maxResults=10
         ).execute()
 
         messages = results.get("messages", [])
