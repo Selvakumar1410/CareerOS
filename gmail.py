@@ -325,72 +325,84 @@ def scan_emails():
                 body_text = clean_html(body_html)
 
                 if not is_job_related_email(subject, body_text, sender):
+                    cursor.execute(
+                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                        (g.user["user_id"], "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                    )
+                    conn.commit()
                     continue
 
                 result = EmailService.parse_email(subject, body_text, sender, _parse_date(date_str))
 
-                if result:
-                    result["email_message_id"] = msg_id
-                    result["subject"] = subject[:300]
-                    result["sender"] = sender[:200]
-                    company_name = result["company"]
-                    role_name = result["role"]
-                    new_status = result["status"]
+                if not result:
+                    cursor.execute(
+                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                        (g.user["user_id"], "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                    )
+                    conn.commit()
+                    continue
+
+                result["email_message_id"] = msg_id
+                result["subject"] = subject[:300]
+                result["sender"] = sender[:200]
+                company_name = result["company"]
+                role_name = result["role"]
+                new_status = result["status"]
                     
-                    try:
-                        # Check if we already have an application for the SAME company (case-insensitive)
+                try:
+                    # Check if we already have an application for the SAME company (case-insensitive)
+                    cursor.execute(
+                        """
+                        SELECT id, status, company, role 
+                        FROM job_applications 
+                        WHERE user_id=%s AND LOWER(company) = LOWER(%s)
+                        ORDER BY created_at DESC 
+                        LIMIT 1
+                        """,
+                        (g.user["user_id"], company_name),
+                    )
+                    existing = cursor.fetchone()
+                    
+                    if existing:
+                        old_status = existing["status"]
+                        status_order = {"Applied": 0, "Shortlisted": 1, "Assessment": 2, "Interview": 3, "Rejected": 4, "Offer": 5}
+
+                        # Update status if the new status is a progression
+                        if (new_status != old_status and
+                                status_order.get(new_status, 0) > status_order.get(old_status, 0)):
+                            if old_status not in ["Rejected", "Offer"]:
+                                cursor.execute(
+                                    """
+                                    UPDATE job_applications 
+                                    SET status=%s, email_message_id=%s, updated_at=NOW(),
+                                        interview_date=COALESCE(%s, interview_date),
+                                        assessment_date=COALESCE(%s, assessment_date)
+                                    WHERE id=%s AND user_id=%s
+                                    """,
+                                    (new_status, msg_id, result.get("interview_date"), result.get("assessment_date"), existing["id"], g.user["user_id"]),
+                                )
+                                extracted_jobs.append(result)
+                        else:
+                            # Just link the email message ID so we don't process it again
+                            cursor.execute(
+                                "UPDATE job_applications SET email_message_id=%s WHERE id=%s AND user_id=%s",
+                                (msg_id, existing["id"], g.user["user_id"]),
+                            )
+                    else:
+                        # Insert the parsed job directly into the DB
                         cursor.execute(
                             """
-                            SELECT id, status, company, role 
-                            FROM job_applications 
-                            WHERE user_id=%s AND LOWER(company) = LOWER(%s)
-                            ORDER BY created_at DESC 
-                            LIMIT 1
+                            INSERT INTO job_applications (user_id, company, role, status, source, email_message_id, applied_date, interview_date, assessment_date)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            RETURNING id
                             """,
-                            (g.user["user_id"], company_name),
+                            (g.user["user_id"], company_name, role_name, new_status, result["source"], msg_id, result["applied_date"], result.get("interview_date"), result.get("assessment_date"))
                         )
-                        existing = cursor.fetchone()
-                        
-                        if existing:
-                            old_status = existing["status"]
-                            status_order = {"Applied": 0, "Shortlisted": 1, "Assessment": 2, "Interview": 3, "Rejected": 4, "Offer": 5}
-
-                            # Update status if the new status is a progression
-                            if (new_status != old_status and
-                                    status_order.get(new_status, 0) > status_order.get(old_status, 0)):
-                                if old_status not in ["Rejected", "Offer"]:
-                                    cursor.execute(
-                                        """
-                                        UPDATE job_applications 
-                                        SET status=%s, email_message_id=%s, updated_at=NOW(),
-                                            interview_date=COALESCE(%s, interview_date),
-                                            assessment_date=COALESCE(%s, assessment_date)
-                                        WHERE id=%s AND user_id=%s
-                                        """,
-                                        (new_status, msg_id, result.get("interview_date"), result.get("assessment_date"), existing["id"], g.user["user_id"]),
-                                    )
-                                    extracted_jobs.append(result)
-                            else:
-                                # Just link the email message ID so we don't process it again
-                                cursor.execute(
-                                    "UPDATE job_applications SET email_message_id=%s WHERE id=%s AND user_id=%s",
-                                    (msg_id, existing["id"], g.user["user_id"]),
-                                )
-                        else:
-                            # Insert the parsed job directly into the DB
-                            cursor.execute(
-                                """
-                                INSERT INTO job_applications (user_id, company, role, status, source, email_message_id, applied_date, interview_date, assessment_date)
-                                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                                RETURNING id
-                                """,
-                                (g.user["user_id"], company_name, role_name, new_status, result["source"], msg_id, result["applied_date"], result.get("interview_date"), result.get("assessment_date"))
-                            )
-                            extracted_jobs.append(result)
-                    except Exception as db_err:
-                        logger.error(f"Failed to insert/update job during manual scan: {db_err}")
-                        conn.rollback()
-                        continue
+                        extracted_jobs.append(result)
+                except Exception as db_err:
+                    logger.error(f"Failed to insert/update job during manual scan: {db_err}")
+                    conn.rollback()
+                    continue
 
             # Log scan
             cursor.execute(
@@ -480,11 +492,28 @@ def auto_scan_user(user_id):
 
                 # 3. Filter out irrelevant emails (alerts, news, digests etc)
                 if not is_job_related_email(subject, body_text, sender):
+                    cursor.execute(
+                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                        (user_id, "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                    )
+                    conn.commit()
                     continue
 
                 # 4. Parse the email details with CareerAI
                 result = EmailService.parse_email(subject, body_text, sender, _parse_date(date_str))
-                if not result or result.get("confidence") == "low":
+                if not result:
+                    cursor.execute(
+                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                        (user_id, "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                    )
+                    conn.commit()
+                    continue
+                if result.get("confidence") == "low":
+                    cursor.execute(
+                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                        (user_id, "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                    )
+                    conn.commit()
                     continue
 
                 company_name = result["company"]
