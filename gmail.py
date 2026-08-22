@@ -275,7 +275,7 @@ def scan_emails():
         results = service.users().messages().list(
             userId="me",
             q=query,
-            maxResults=10,
+            maxResults=150,
         ).execute()
 
         messages = results.get("messages", [])
@@ -286,9 +286,13 @@ def scan_emails():
         extracted_jobs = []
         conn = get_db_connection()
         cursor = get_db_cursor(conn)
+        new_jobs_processed = 0
 
         try:
             for msg_meta in messages:
+                if new_jobs_processed >= 10:
+                    break  # Prevent HTTP timeout by capping at 10 AI extractions per request
+
                 msg_id = msg_meta["id"]
 
                 # Check if already imported
@@ -298,6 +302,8 @@ def scan_emails():
                 )
                 if cursor.fetchone():
                     continue  # Already imported
+                
+                new_jobs_processed += 1
 
                 # Fetch full message
                 msg = service.users().messages().get(
@@ -429,7 +435,7 @@ def auto_scan_user(user_id):
 
     try:
         results = service.users().messages().list(
-            userId="me", q=query, maxResults=10
+            userId="me", q=query, maxResults=150
         ).execute()
 
         messages = results.get("messages", [])
@@ -441,9 +447,13 @@ def auto_scan_user(user_id):
         new_jobs = 0
         updated_jobs = 0
         notifications = []
+        new_jobs_processed = 0
 
         try:
             for msg_meta in messages:
+                if new_jobs_processed >= 10:
+                    break  # Keep background jobs fast
+                    
                 msg_id = msg_meta["id"]
 
                 # 1. Skip if this EXACT email message was already processed
@@ -453,6 +463,8 @@ def auto_scan_user(user_id):
                 )
                 if cursor.fetchone():
                     continue
+                
+                new_jobs_processed += 1
 
                 # 2. Fetch email message details
                 msg = service.users().messages().get(

@@ -85,7 +85,7 @@ def get_jobs():
         query += " AND status=%s"
         params.append(status)
 
-    query += " ORDER BY created_at DESC"
+    query += " ORDER BY COALESCE(applied_date, created_at::date) DESC, created_at DESC"
 
     conn = get_db_connection()
     cursor = get_db_cursor(conn)
