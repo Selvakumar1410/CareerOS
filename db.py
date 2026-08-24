@@ -50,7 +50,7 @@ def get_db_connection():
     if _pool is None:
         _pool = pool.ThreadedConnectionPool(
             minconn=1,
-            maxconn=10,
+            maxconn=20,
             **db_config
         )
     conn = _pool.getconn()

@@ -634,6 +634,29 @@ def auto_scan_user(user_id):
 
     except Exception as e:
         logger.error(f"Auto-scan error for user {user_id}: {e}")
+        error_str = str(e).lower()
+        if "invalid_grant" in error_str or "unauthorized" in error_str or "401" in error_str or "403" in error_str:
+            try:
+                conn = get_db_connection()
+                cursor = get_db_cursor(conn)
+                cursor.execute(
+                    """
+                    INSERT INTO notifications (user_id, type, title, message, metadata) 
+                    VALUES (%s, %s, %s, %s, %s)
+                    """,
+                    (
+                        user_id,
+                        "action_required",
+                        "Gmail Sync Disconnected",
+                        "Your Gmail connection has expired. Please reconnect it in Settings.",
+                        '{"action_url": "/settings"}'
+                    )
+                )
+                conn.commit()
+                cursor.close()
+                conn.close()
+            except Exception as notif_e:
+                logger.error(f"Failed to insert disconnection notification: {notif_e}")
 
 
 def run_auto_scan_all():

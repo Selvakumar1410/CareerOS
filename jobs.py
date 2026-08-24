@@ -178,14 +178,26 @@ def delete_job(job_id):
     cursor = get_db_cursor(conn)
 
     try:
-        cursor.execute(
-            "DELETE FROM job_applications WHERE id=%s AND user_id=%s",
-            (job_id, g.user["user_id"])
-        )
-        conn.commit()
-
-        if cursor.rowcount == 0:
+        cursor.execute("SELECT email_message_id FROM job_applications WHERE id=%s AND user_id=%s", (job_id, g.user["user_id"]))
+        job = cursor.fetchone()
+        
+        if not job:
             return jsonify({"error": "Job not found"}), 404
+            
+        if job["email_message_id"]:
+            # Soft delete to prevent Gmail scanner from re-importing it
+            cursor.execute(
+                "UPDATE job_applications SET status='Ignored', updated_at=NOW() WHERE id=%s AND user_id=%s",
+                (job_id, g.user["user_id"])
+            )
+        else:
+            # Hard delete for manually added jobs
+            cursor.execute(
+                "DELETE FROM job_applications WHERE id=%s AND user_id=%s",
+                (job_id, g.user["user_id"])
+            )
+            
+        conn.commit()
 
         return jsonify({"message": "Job deleted"}), 200
 
