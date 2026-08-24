@@ -84,6 +84,8 @@ def get_jobs():
     if status:
         query += " AND status=%s"
         params.append(status)
+    else:
+        query += " AND status != 'Ignored'"
 
     query += " ORDER BY COALESCE(applied_date, created_at::date) DESC, created_at DESC"
 
