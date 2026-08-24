@@ -426,6 +426,9 @@ def scan_emails():
 
     except Exception as e:
         logger.error(f"Gmail scan error: {e}")
+        error_str = str(e).lower()
+        if "invalid_grant" in error_str or "unauthorized" in error_str or "401" in error_str or "403" in error_str:
+            return jsonify({"error": "Gmail not connected. Token expired. Please reconnect Gmail in Settings."}), 400
         return jsonify({"error": f"Failed to scan emails: {str(e)}"}), 500
 
 
