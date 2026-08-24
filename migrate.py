@@ -60,7 +60,7 @@ def run_migrations():
             company VARCHAR(200) NOT NULL,
             role VARCHAR(200) NOT NULL,
             location VARCHAR(200),
-            status VARCHAR(50) DEFAULT 'Applied' CHECK (status IN ('Applied', 'Shortlisted', 'Assessment', 'Interview', 'Rejected', 'Offer')),
+            status VARCHAR(50) DEFAULT 'Applied' CHECK (status IN ('Applied', 'Shortlisted', 'Assessment', 'Interview', 'Rejected', 'Offer', 'Ignored')),
             applied_date DATE,
             interview_date TIMESTAMP,
             assessment_date TIMESTAMP,
@@ -79,7 +79,7 @@ def run_migrations():
         # Drop old check constraint and recreate it to include 'Assessment'
         try:
             cursor.execute("ALTER TABLE job_applications DROP CONSTRAINT IF EXISTS job_applications_status_check")
-            cursor.execute("ALTER TABLE job_applications ADD CONSTRAINT job_applications_status_check CHECK (status IN ('Applied', 'Shortlisted', 'Assessment', 'Interview', 'Rejected', 'Offer'))")
+            cursor.execute("ALTER TABLE job_applications ADD CONSTRAINT job_applications_status_check CHECK (status IN ('Applied', 'Shortlisted', 'Assessment', 'Interview', 'Rejected', 'Offer', 'Ignored'))")
         except Exception as e:
             print(f"  -> Warning updating status constraint: {e}")
 
