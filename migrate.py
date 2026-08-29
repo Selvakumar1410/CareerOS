@@ -76,9 +76,23 @@ def run_migrations():
         # Add missing columns to job_applications if table was created older
         print("Migrating: Checking 'job_applications' schema updates...")
         
-        # Drop old check constraint and recreate it to include 'Assessment'
+        # Drop old check constraint and recreate it to include 'Assessment' and 'Ignored'
         try:
-            cursor.execute("ALTER TABLE job_applications DROP CONSTRAINT IF EXISTS job_applications_status_check")
+            # Robustly drop any existing check constraints on this table
+            cursor.execute("""
+                DO $$
+                DECLARE
+                    r record;
+                BEGIN
+                    FOR r IN 
+                        SELECT conname 
+                        FROM pg_constraint 
+                        WHERE conrelid = 'job_applications'::regclass AND contype = 'c'
+                    LOOP
+                        EXECUTE 'ALTER TABLE job_applications DROP CONSTRAINT ' || quote_ident(r.conname);
+                    END LOOP;
+                END $$;
+            """)
             cursor.execute("ALTER TABLE job_applications ADD CONSTRAINT job_applications_status_check CHECK (status IN ('Applied', 'Shortlisted', 'Assessment', 'Interview', 'Rejected', 'Offer', 'Ignored'))")
         except Exception as e:
             print(f"  -> Warning updating status constraint: {e}")
