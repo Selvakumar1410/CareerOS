@@ -345,8 +345,8 @@ def scan_emails():
                 result["email_message_id"] = msg_id
                 result["subject"] = subject[:300]
                 result["sender"] = sender[:200]
-                company_name = result["company"]
-                role_name = result["role"]
+                company_name = result["company"][:200]
+                role_name = result["role"][:200]
                 new_status = result["status"]
                     
                 try:
@@ -519,8 +519,8 @@ def auto_scan_user(user_id):
                     conn.commit()
                     continue
 
-                company_name = result["company"]
-                role_name = result["role"]
+                company_name = result["company"][:200]
+                role_name = result["role"][:200]
                 new_status = result["status"]
 
                 # 5. Check if we already have an application for the SAME company (case-insensitive)

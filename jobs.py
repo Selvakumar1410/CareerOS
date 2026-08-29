@@ -142,6 +142,11 @@ def update_job(job_id):
         company = (data.get("company") or job["company"]).strip()
         role = (data.get("role") or job["role"]).strip()
         location = (data.get("location") or job["location"] or "").strip()
+        
+        # Validate lengths
+        if len(company) > 200 or len(role) > 200:
+            return jsonify({"error": "Company and Role must be under 200 characters"}), 400
+        location = location[:200]
         status = data.get("status", job["status"])
         applied_date = data.get("applied_date", job["applied_date"])
         interview_date = data.get("interview_date", job.get("interview_date"))
