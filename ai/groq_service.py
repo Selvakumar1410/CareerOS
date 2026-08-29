@@ -9,7 +9,7 @@ class GroqService:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(GroqService, cls).__new__(cls)
-            cls._instance.client = Groq(api_key=get_groq_api_key())
+            cls._instance.client = Groq(api_key=get_groq_api_key(), timeout=10.0)
             cls._instance.default_model = DEFAULT_MODEL
         return cls._instance
 

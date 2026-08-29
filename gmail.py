@@ -290,8 +290,8 @@ def scan_emails():
 
         try:
             for msg_meta in messages:
-                if new_jobs_processed >= 10:
-                    break  # Prevent HTTP timeout by capping at 10 AI extractions per request
+                if new_jobs_processed >= 3:
+                    break  # Prevent HTTP timeout by capping at 3 AI extractions per request
 
                 msg_id = msg_meta["id"]
 
@@ -325,21 +325,37 @@ def scan_emails():
                 body_text = clean_html(body_html)
 
                 if not is_job_related_email(subject, body_text, sender):
-                    cursor.execute(
-                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
-                        (g.user["user_id"], "[Not a job]", "[Not a job]", "Ignored", msg_id)
-                    )
-                    conn.commit()
+                    try:
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (g.user["user_id"], "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                        )
+                        conn.commit()
+                    except Exception:
+                        conn.rollback()
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (g.user["user_id"], "[Not a job]", "[Not a job]", "Rejected", msg_id)
+                        )
+                        conn.commit()
                     continue
 
                 result = EmailService.parse_email(subject, body_text, sender, _parse_date(date_str))
 
                 if not result:
-                    cursor.execute(
-                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
-                        (g.user["user_id"], "[Not a job]", "[Not a job]", "Ignored", msg_id)
-                    )
-                    conn.commit()
+                    try:
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (g.user["user_id"], "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                        )
+                        conn.commit()
+                    except Exception:
+                        conn.rollback()
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (g.user["user_id"], "[Not a job]", "[Not a job]", "Rejected", msg_id)
+                        )
+                        conn.commit()
                     continue
 
                 result["email_message_id"] = msg_id
@@ -495,28 +511,52 @@ def auto_scan_user(user_id):
 
                 # 3. Filter out irrelevant emails (alerts, news, digests etc)
                 if not is_job_related_email(subject, body_text, sender):
-                    cursor.execute(
-                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
-                        (user_id, "[Not a job]", "[Not a job]", "Ignored", msg_id)
-                    )
-                    conn.commit()
+                    try:
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (user_id, "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                        )
+                        conn.commit()
+                    except Exception:
+                        conn.rollback()
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (user_id, "[Not a job]", "[Not a job]", "Rejected", msg_id)
+                        )
+                        conn.commit()
                     continue
 
                 # 4. Parse the email details with CareerAI
                 result = EmailService.parse_email(subject, body_text, sender, _parse_date(date_str))
                 if not result:
-                    cursor.execute(
-                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
-                        (user_id, "[Not a job]", "[Not a job]", "Ignored", msg_id)
-                    )
-                    conn.commit()
+                    try:
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (user_id, "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                        )
+                        conn.commit()
+                    except Exception:
+                        conn.rollback()
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (user_id, "[Not a job]", "[Not a job]", "Rejected", msg_id)
+                        )
+                        conn.commit()
                     continue
                 if result.get("confidence") == "low":
-                    cursor.execute(
-                        "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
-                        (user_id, "[Not a job]", "[Not a job]", "Ignored", msg_id)
-                    )
-                    conn.commit()
+                    try:
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (user_id, "[Not a job]", "[Not a job]", "Ignored", msg_id)
+                        )
+                        conn.commit()
+                    except Exception:
+                        conn.rollback()
+                        cursor.execute(
+                            "INSERT INTO job_applications (user_id, company, role, status, email_message_id) VALUES (%s, %s, %s, %s, %s)",
+                            (user_id, "[Not a job]", "[Not a job]", "Rejected", msg_id)
+                        )
+                        conn.commit()
                     continue
 
                 company_name = result["company"][:200]
